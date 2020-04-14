@@ -1,7 +1,7 @@
 from time import sleep
 from 下载组件 import *
 from os import mkdir,system
-from easygui import enterbox,boolbox,msgbox,choicebox,multchoicebox
+from easygui import enterbox,boolbox,msgbox,choicebox,multchoicebox,textbox
 
 try:  # 检测音乐文件夹，没有则新建
     mkdir('音乐')
@@ -18,16 +18,24 @@ with open('数据/歌单列表.txt', 'a'):
     pass
 with open('数据/歌单哈希值列表.txt', 'a'):
     pass
+with open('数据/options.ini', 'r+') as f:
+    options = f.read().replace('\n','')
+    if options == '':
+        settings = {"debug": False}
+        f.write(str(settings).replace('{', '').replace('}', ''))
+    else:
+        settings = eval("{" + options + "}")
 
 
 
+#导入累
 song_download = kugou_download()
 
 
 def download():
     # 选择模式
     mode_list = ['输入酷狗码', '根据歌曲名称下载', '根据哈希值下载',
-                 '导入文件批量下载', '转换utf-8为gbk', '更新cookies']
+                 '哈希值批量下载', '转换utf-8为gbk', '更新cookies']
     mode = choicebox(msg='请选择下载模式', title='选择模式', choices=mode_list)
     if mode == '输入酷狗码':
         code = enterbox('请输入酷狗码', '输入酷狗码')
@@ -86,9 +94,13 @@ def download():
         lyrics_mode = boolbox('是否下载歌词？', choices=['是', '否'])
         msgbox(msg=song_download.download_main(song_hash,lyrics_mode),ok_button='继续')
 
-    elif mode == '导入文件批量下载':
-        with open('数据/歌单哈希值列表.txt', 'r') as f:
-            song_hash_list = f.read().split()
+    elif mode == '哈希值批量下载':
+        song_hash = textbox('请填写哈希值，换行分割\n如果此处为空，则读取并导入文件“数据/歌单哈希值列表.txt”', '输入哈希值')
+        if song_hash==None:
+            with open('数据/歌单哈希值列表.txt', 'r') as f:
+                song_hash_list = f.read().split()#读取文件并换行分割
+        else:
+            song_hash_list = song_hash.split()#换行分割
         lyrics_mode = boolbox(msg='是否需要一键下载全部歌词？', choices=['是', '否'])
         for i in song_hash_list:
             print(song_download.download_main(i, lyrics_mode))
@@ -112,8 +124,7 @@ def download():
 
 
 # 调用函数
-debug_mode = False
-if debug_mode==False:
+if settings["debug"]==False:
     try:
         download()
     except:
