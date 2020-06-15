@@ -7,11 +7,12 @@ import hashlib
 def kugou_code(code):
     # 这堆东西别瞎改，酷狗特别奇葩，data发的字符串，双引号还不能换成引号
     data2 = {"appid": 1001, "clientver": 8392, "mid": "b1422385bca909d7ac9aadb285f05541",
-             "clienttime": 636307277, "key": "1bb5ba48267c0a4750ecda8d7b10368c"}
+            "clienttime": 636307277, "key": "1bb5ba48267c0a4750ecda8d7b10368c"}
     data = '{"appid":1001,"clientver":8392,"mid":"b1422385bca909d7ac9aadb285f05541","clienttime":636307277,"key":"1bb5ba48267c0a4750ecda8d7b10368c","data":"' + code + '"}'
 
     # ----------------第一部分：获取用户信息----------------
     page = requests.post(url="http://t.kugou.com/command/", data=data).text
+    # print(page)
     page = eval(page)
     # 复制前面的信息，补充后面的data
     json2 = data2
@@ -33,8 +34,13 @@ def kugou_code(code):
         json3 = requests.post(url='http://www2.kugou.kugou.com/apps/kucodeAndShare/app/', data=json2).text
         json3 = eval(json3)
         song_list = json3['data']
+        with open('数据/log.txt', 'a', encoding='utf-8') as log:
+            log.write("酷狗码列表下载-->\n"+str(song_list)+"\n")
+        print(1)
         return song_list
     elif json2['data']["type"] == 1:  # 单曲酷狗码
+        with open('数据/log.txt', 'a', encoding='utf-8') as log:
+            log.write("酷狗码单曲下载-->\n"+str(page)+"\n")
         return page['data']['list']['hash']
 
 
@@ -55,7 +61,7 @@ def lyrics(json_list):
 class kugou_download:
     def __init__(self):
         self.headers = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4023.0 Safari/537.36 Edg/81.0.396.0'}
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4162.0 Safari/537.36 Edg/85.0.538.0'}
         with open('数据/cookies.txt', 'r') as f:
             cookies_dict = {}
             try:
@@ -76,15 +82,14 @@ class kugou_download:
     def download_main(self, song_hash, is_lyrics):
         hash_url = 'https://wwwapi.kugou.com/yy/index.php?r=play/getdata&callback=jQuery191044011229047114075_1566198263706&hash={}'.format(
             song_hash)
+        print("正在从{}获取歌曲信息".format(hash_url))
         json = requests.get(url=hash_url, headers=self.headers, cookies=self.cookies).text
         main_json = eval(json[42:-2])
-        with open('数据/log.txt', 'w', encoding='utf-8') as log:
-            log.write("获取歌曲json-->\n"+str(main_json))
+        with open('数据/log.txt', 'a', encoding='utf-8') as log:
+            log.write("mp3下载-->\n"+str(main_json)+"\n")
         if main_json['status'] == 0:
-            print('cookies过期或发生其他错误，请重试')
-            print('以下是错误代码:'+str(main_json))
-            quit(1)
-        # 傻逼文件名的检测替换
+            return "cookies过期或使用次数过多被封禁或发生其他错误，请稍后再试\n以下是错误代码:"+str(main_json)
+        #傻逼文件名的检测替换
         file_name_error = ['"', '?', '/', '*', ':', '\\', '|', '<', '>']
         for file_name in file_name_error:
             if main_json['data']['audio_name'].find(file_name) != -1:
@@ -106,7 +111,7 @@ class kugou_download:
                 with open('音乐/' + notice_file_name + song_name + '.mp3', 'xb') as f:  # 检测歌曲是否已经存在，不存在则写入歌曲
                     song = requests.get(url=song_url, headers=self.headers, cookies=self.cookies)
                     f.write(song.content)
-                song_length_format = str(int(song_length / 1000) // 60) + ":" + str(int(song_length / 1000) % 60)
+                song_length_format = "%02d:%02d" %(int(song_length / 1000) // 60, int(song_length / 1000) % 60)
 
                 if is_lyrics:
                     lyrics(main_json)
@@ -122,7 +127,7 @@ class kugou_download:
                     '=1&privilege_filter=0&_=1566198223734'.format(url_name)
         page1 = requests.get(url=url_json1, headers=self.headers).text
         song_json = eval(page1[41:-2])
-        with open('数据/log.txt', 'w', encoding='utf-8') as log:
+        with open('数据/log.txt', 'a', encoding='utf-8') as log:
             log.write("获取歌曲名称json-->\n"+str(song_json))
         '''
         i = 0
@@ -133,7 +138,7 @@ class kugou_download:
             song_dict[file_name] = i
             song_list.append(file_name)
             i += 1
-            '''
+        '''
         return song_json
         # i = int(song_dict[eg.choicebox(msg='请在以上结果中选择你要下载的歌曲', choices=song_list)])
         # i=int(input('请在以上结果中选择你要下载的歌曲(填数字编号)\n'))-1
