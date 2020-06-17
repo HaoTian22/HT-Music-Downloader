@@ -20,11 +20,13 @@ with open('数据/歌单列表.txt', 'a'):
     pass
 with open('数据/歌单哈希值列表.txt', 'a'):
     pass
+with open('数据/options.ini', 'a'):
+    pass
 with open('数据/options.ini', 'r+') as f:
     options = f.read().replace('\n','')
     if options == '':
         settings = {"debug": False}
-        f.write(str(settings).replace('{', '').replace('}', ''))
+        f.write('"debug": False')
     else:
         settings = eval("{" + options + "}")
 
@@ -96,7 +98,7 @@ def download():
         easygui.msgbox(msg=song_download.download_main(song_hash,lyrics_mode),ok_button='继续')
 
     elif mode == '哈希值批量下载':
-        song_hash = textbox('请填写哈希值，换行分割\n如果此处为空，则读取并导入文件“数据/歌单哈希值列表.txt”', '输入哈希值')
+        song_hash = easygui.textbox('请填写哈希值，换行分割\n如果此处为空，则读取并导入文件“数据/歌单哈希值列表.txt”', '输入哈希值')
         if song_hash==None:
             with open('数据/歌单哈希值列表.txt', 'r') as f:
                 song_hash_list = f.read().split()  # 读取文件并换行分割
@@ -129,7 +131,6 @@ if settings["debug"] == False:
         download()
     except:
         easygui.msgbox(msg='出现bug，程序将退出\n如有需要，请把debug_mode的值更改位True来打开调试模式以查看详情')
-        os.system('pause')
 else:
     download()
     os.system('pause')
