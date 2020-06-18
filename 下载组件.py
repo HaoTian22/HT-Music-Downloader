@@ -1,5 +1,5 @@
 from urllib import parse
-
+import os
 from lxml import etree
 import requests
 import hashlib
@@ -88,7 +88,8 @@ class kugou_download:
         with open('数据/log.txt', 'a', encoding='utf-8') as log:
             log.write("mp3下载-->\n"+str(main_json)+"\n")
         if main_json['status'] == 0:
-            return "cookies过期或使用次数过多被封禁或发生其他错误，请稍后再试\n以下是错误代码:"+str(main_json)
+            os.system("start https://www.kugou.com/song/")
+            return "cookies过期或使用次数过多被封禁或发生其他错误，请稍后再试\n以下是错误代码:\n"+str(main_json)+"\n可以尝试在打开的浏览器页面中输入验证码解决"
         #傻逼文件名的检测替换
         file_name_error = ['"', '?', '/', '*', ':', '\\', '|', '<', '>']
         for file_name in file_name_error:
@@ -129,25 +130,4 @@ class kugou_download:
         song_json = eval(page1[41:-2])
         with open('数据/log.txt', 'a', encoding='utf-8') as log:
             log.write("获取歌曲名称json-->\n"+str(song_json))
-        '''
-        i = 0
-        song_list = []
-        song_dict = {}
-        for song in song_json['data']['lists']:
-            file_name = song['FileName'].replace('<em>', '').replace('</em>', '').replace('<\\/em>', '')
-            song_dict[file_name] = i
-            song_list.append(file_name)
-            i += 1
-        '''
         return song_json
-        # i = int(song_dict[eg.choicebox(msg='请在以上结果中选择你要下载的歌曲', choices=song_list)])
-        # i=int(input('请在以上结果中选择你要下载的歌曲(填数字编号)\n'))-1
-        # lyrics_mode = eg.boolbox('是否下载歌词？', choices=['是', '否'])
-        # if song_mode == 1:  # 流畅
-        #     lyrics(download_hash(song_json['data']['lists'][i]['FileHash'], True), lyrics_mode)
-        # elif song_mode == 2:  # 高品
-        #     lyrics(download_hash(song_json['data']['lists'][i]['HQFileHash'], True), lyrics_mode)
-        # elif song_mode == 3:  # 超高
-        #     lyrics(download_hash(song_json['data']['lists'][i]['SQFileHash'], True), lyrics_mode)
-        # elif song_mode == 4:  # 无损
-        #     lyrics(download_hash(song_json['data']['lists'][i]['ResFileHash'], True), lyrics_mode)
