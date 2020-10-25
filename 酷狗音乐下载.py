@@ -38,7 +38,7 @@ song_download = kugou_download()
 
 def download():
     # 选择模式
-    mode_list = ['输入酷狗码', '根据歌曲名称下载', '根据哈希值下载',
+    mode_list = ['输入酷狗码', '关键词搜索下载', '根据哈希值下载',
                  '哈希值批量下载', '转换utf-8为gbk', '更新cookies']
     mode = easygui.choicebox(msg='请选择下载模式', title='选择模式', choices=mode_list)
     if mode == '输入酷狗码':
@@ -75,7 +75,7 @@ def download():
             easygui.msgbox(msg=song_download.download_main(code_return, lyrics_mode), ok_button='继续')
 
 
-    elif mode == '根据歌曲名称下载':
+    elif mode == '关键词搜索下载':
         song_name = easygui.enterbox(msg='请输入歌曲名称')
         song_name_json = song_download.download_name(song_name)
         i = 1
@@ -130,7 +130,7 @@ if settings["debug"] == False:
     try:
         download()
     except:
-        easygui.msgbox(msg='出现bug，程序将退出\n如有需要，请把debug_mode的值更改位True来打开调试模式以查看详情')
+        easygui.msgbox(msg='出现bug，程序将退出\n如有需要，请把debug_mode的值更改为True来打开调试模式以查看详情')
 else:
     download()
     os.system('pause')
