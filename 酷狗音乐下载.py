@@ -1,7 +1,9 @@
+from threading import Thread
 import time
 from 下载组件 import *
 import os
 import easygui
+import threading
 
 try:  # 检测音乐文件夹，没有则新建
     os.mkdir('音乐')
@@ -35,6 +37,8 @@ with open('数据/options.ini', 'r+') as f:
 #导入类
 song_download = kugou_download()
 
+def download_list(hash, lyrics_mode):
+    print(song_download.download_main(hash, lyrics_mode))
 
 def download():
     # 选择模式
@@ -68,8 +72,11 @@ def download():
                             song_choice_list.append(int(i.split(' ')[0])-1)
                         lyrics_mode = easygui.boolbox(msg='是否需要一键下载全部歌词？', choices=['是', '否'])
                         for i in song_choice_list:
-                            print(song_download.download_main(code_return[i]['hash'], lyrics_mode))
-                            time.sleep(1)
+                            t = threading.Thread(target=download_list,args=(
+                                code_return[i]['hash'], lyrics_mode),)
+                            # print(song_download.download_main(code_return[i]['hash'], lyrics_mode))
+                            t.start()
+                            time.sleep(0.1)
         else:
             lyrics_mode = easygui.boolbox('是否下载歌词？', choices=['是', '否'])
             easygui.msgbox(msg=song_download.download_main(code_return, lyrics_mode), ok_button='继续')
@@ -106,8 +113,9 @@ def download():
             song_hash_list = song_hash.split()  # 换行分割
         lyrics_mode = easygui.boolbox(msg='是否需要一键下载全部歌词？', choices=['是', '否'])
         for i in song_hash_list:
-            print(song_download.download_main(i, lyrics_mode))
-            time.sleep(1)
+            t = threading.Thread(target=download_list, args=(i, lyrics_mode),)
+            t.start()
+            time.sleep(0.1)
 
     elif mode == '更新cookies':
         with open('数据/cookies.txt', 'r') as f:

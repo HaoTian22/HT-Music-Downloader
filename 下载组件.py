@@ -1,6 +1,8 @@
 import os
 import requests
 import hashlib
+import json as js
+from mutagen.id3 import ID3, APIC
 
 
 def kugou_code(code):
@@ -34,6 +36,7 @@ def kugou_code(code):
             url='http://www2.kugou.kugou.com/apps/kucodeAndShare/app/', data=json2).text
         json3 = eval(json3)
         song_list = json3['data']
+        # 某些多版本的歌曲专辑不同会导致错误
         with open('数据/log.txt', 'a', encoding='utf-8') as log:
             log.write("酷狗码列表下载-->\n"+str(song_list)+"\n")
         print(1)
@@ -52,7 +55,7 @@ def lyrics(json_list):
     else:
         with open('音乐/' + json_list['data']['audio_name'] + '.lrc', 'w', encoding='gb18030') as f:
             f.write(
-                json_list['data']['lyrics'].replace('\ufeff', '').replace('\r',''))
+                json_list['data']['lyrics'].replace('\ufeff', '').replace('\r', ''))
         print('歌词下载完成')
 
 
@@ -77,17 +80,27 @@ class kugou_download:
             self.cookies = cookies_dict
 
     def download_main(self, song_hash, is_lyrics):
-        hash_url = 'http://www.kugou.com/yy/index.php?r=play/getdata&hash={}'.format(
+        hash_url = 'https://wwwapi.kugou.com/yy/index.php?r=play/getdata&callback=jQuery19107707606997391536_1606614033664&hash={}'.format(
             song_hash)
         print("正在从{}获取歌曲信息".format(hash_url))
-        json = requests.get(url=hash_url, headers=self.headers,
-                            cookies=self.cookies).text
-        main_json = eval(json)
+        main_json = js.loads(requests.get(url=hash_url, headers=self.headers,
+                                          cookies=self.cookies).text[41:-2])
         with open('数据/log.txt', 'a', encoding='utf-8') as log:
-            log.write("mp3下载-->\n"+str(main_json)+"\n")
+            log.write("信息获取-->\n"+str(main_json)+"\n")
         if main_json['status'] == 0:
             os.system("start https://www.kugou.com/song/")
             return "cookies过期或使用次数过多被封禁或发生其他错误，请稍后再试\n以下是错误代码:\n"+str(main_json)+"\n可以尝试在打开的浏览器页面中输入验证码解决"
+        print(main_json['data']['album_id'])
+        if main_json['data']['have_album']==0:
+            return "❌由于酷狗官网自身的bug，<{}>无法下载或者在浏览器播放\n只能在客户端播放(这我也很绝望啊)\n不信你去试试https://www.kugou.com/song/#hash={}\n".format(
+                main_json['data']['audio_name'],song_hash)
+        album_id = eval(main_json['data']['album_id'])
+        hash_url = 'https://wwwapi.kugou.com/yy/index.php?r=play/getdata&callback=jQuery19107707606997391536_1606614033664&hash={}&album_id={}'.format(
+            song_hash, album_id)
+        main_json = js.loads(requests.get(url=hash_url, headers=self.headers,
+                                          cookies=self.cookies).text[41:-2])
+        with open('数据/log.txt', 'a', encoding='utf-8') as log:
+            log.write("mp3下载-->\n"+str(main_json)+"\n")
         # 傻逼文件名的检测替换
         file_name_error = ['"', '?', '/', '*', ':', '\\', '|', '<', '>']
         for file_name in file_name_error:
@@ -97,6 +110,7 @@ class kugou_download:
         song_url = main_json['data']['play_url'].replace('\\', '')
         print("正在从"+song_url+"下载")
         song_name = main_json['data']['audio_name']
+        img_url = main_json['data']['img']
         song_length = int(main_json['data']['timelength'])
         song_free = main_json['data']['is_free_part']  # 试听歌曲为1，普通歌曲为0
         if song_url == '':  # 检测歌曲是否能下载
@@ -112,6 +126,21 @@ class kugou_download:
                     song = requests.get(
                         url=song_url, headers=self.headers, cookies=self.cookies)
                     f.write(song.content)
+                try: # 写入歌曲封面，一些歌曲没有ID3 tag会报错
+                    mp3file = '音乐/' + notice_file_name + song_name + '.mp3'
+                    songFile = ID3(mp3file)
+                    picData = requests.get(
+                        url=img_url, headers=self.headers, cookies=self.cookies).content
+                    songFile['APIC'] = APIC(  # 插入封面
+                        encoding=3,
+                        mime='image/jpeg',
+                        type=3,
+                        desc=u'Cover',
+                        data=picData
+                    )
+                    songFile.save()
+                except:
+                    print("歌曲封面写入失败")
                 song_length_format = "%02d:%02d" % (
                     int(song_length / 1000) // 60, int(song_length / 1000) % 60)
 
@@ -131,15 +160,16 @@ class kugou_download:
         v2_key = hashlib.md5((Hash + 'kgcloudv2').encode("utf-8")).hexdigest()
         v1_key = hashlib.md5((Hash + 'kgcloud').encode("utf-8")).hexdigest()
 
-        json = requests.get(Music_api_1 + '&hash={}&key={}'.format(Hash, v2_key), cookies=self.cookies, headers=self.headers).text
+        json = requests.get(Music_api_1 + '&hash={}&key={}'.format(Hash,
+                                                                   v2_key), cookies=self.cookies, headers=self.headers).text
         json = eval(json)
         if json["status"] == 1:
-            song_url = json["url"].replace("\\\\/", '/').replace('\\/','/')
+            song_url = json["url"].replace("\\\\/", '/').replace('\\/', '/')
             print(song_url)
             song_name = json["fileName"]
             print("正在从"+song_url+"下载")
             # 检测歌曲是否已经存在，不存在则写入歌曲
-            with open('音乐/'+ song_name + '.mp3', 'xb') as f:
+            with open('音乐/' + song_name + '.mp3', 'xb') as f:
                 song = requests.get(
                     url=song_url, headers=self.headers, cookies=self.cookies)
                 f.write(song.content)
