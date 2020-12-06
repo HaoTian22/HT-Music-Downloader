@@ -3,6 +3,7 @@ import requests
 import hashlib
 import json as js
 from mutagen.id3 import ID3, APIC
+from mutagen.mp3 import MP3
 
 
 def kugou_code(code):
@@ -126,18 +127,24 @@ class kugou_download:
                     song = requests.get(
                         url=song_url, headers=self.headers, cookies=self.cookies)
                     f.write(song.content)
-                try: # 写入歌曲封面，一些歌曲没有ID3 tag会报错
+                try: # 写入歌曲封面
                     mp3file = '音乐/' + notice_file_name + song_name + '.mp3'
-                    songFile = ID3(mp3file)
+                    songFile = MP3(mp3file,ID3=ID3)
+                    try: # 给没有ID3 tag的歌曲加入tag
+                        songFile.add_tags()
+                    except:
+                        pass
                     picData = requests.get(
                         url=img_url, headers=self.headers, cookies=self.cookies).content
-                    songFile['APIC'] = APIC(  # 插入封面
+                    songFile.tags.add(
+                        APIC(  # 插入封面
                         encoding=3,
                         mime='image/jpeg',
                         type=3,
                         desc=u'Cover',
                         data=picData
                     )
+                    ) 
                     songFile.save()
                 except:
                     print("歌曲封面写入失败")
