@@ -10,7 +10,7 @@ def kugou_code(code):
     # 这堆东西别瞎改，酷狗特别奇葩，data发的字符串，双引号还不能换成引号
     data2 = {"appid": 1001, "clientver": 8392, "mid": "b1422385bca909d7ac9aadb285f05541",
              "clienttime": 636307277, "key": "1bb5ba48267c0a4750ecda8d7b10368c"}
-    data = '{"appid":1001,"clientver":8392,"mid":"b1422385bca909d7ac9aadb285f05541","clienttime":636307277,"key":"1bb5ba48267c0a4750ecda8d7b10368c","data":"' + code + '"}'
+    data = '{"appid":1001,"clientver":8392,"mid":"b1422385bca909d7ac9aadb285f05541","clienttime":636307277,"key":"1bb5ba48267c0a4750ecda8d7b10368c","data":"' + str(code) + '"}'
 
     # ----------------第一部分：获取用户信息----------------
     page = requests.post(url="http://t.kugou.com/command/", data=data).text
