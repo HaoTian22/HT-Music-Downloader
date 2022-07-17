@@ -1,6 +1,7 @@
 from threading import Thread
 import time
 from 下载组件 import *
+from 更新助手 import *
 import os
 import easygui
 import threading
@@ -44,7 +45,7 @@ def download_list(hash, lyrics_mode):
 def download():
     # 选择模式
     mode_list = ['输入酷狗码', '关键词搜索下载', '根据哈希值下载',
-                 '哈希值批量下载', '转换utf-8为gbk', '更新cookies']
+                '哈希值批量下载', '更新cookies','检查更新']
     mode = easygui.choicebox(msg='请选择下载模式', title='选择模式', choices=mode_list)
     if mode == '输入酷狗码':
         code = easygui.integerbox('请输入酷狗码', '输入酷狗码', upperbound=None)
@@ -102,7 +103,7 @@ def download():
         lyrics_mode = easygui.boolbox('是否下载歌词？', choices=['是', '否'])
         print('标准版本:'+song_name_json['data']['lists'][num - 1]['FileHash'])
         print('高清版本(大概率没用):'+song_name_json['data']
-              ['lists'][num - 1]['HQFileHash'])
+            ['lists'][num - 1]['HQFileHash'])
         easygui.msgbox(
             msg=song_download.download_main(
                 song_name_json['data']['lists'][num - 1]['FileHash'], lyrics_mode),
@@ -136,6 +137,8 @@ def download():
         if cookies:
             with open('数据/cookies.txt', 'w') as f:
                 f.write(cookies)
+    elif mode == '检查更新':
+        update()
 
 
 # 调用函数
