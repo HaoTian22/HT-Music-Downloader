@@ -5,10 +5,9 @@ name: CI
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "master" branch
-  push:
-    branches: [ "flet-v4" ]
-  pull_request:
-    branches: [ "master" ]
+  schedule:
+  - cron: 0 0 1 * *
+  
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -36,10 +35,18 @@ jobs:
         run: |
           pyinstaller -F init.py -i icon.ico --add-data "assets;assets"
           ren ./dist/init.exe "HT's Music Downloader.exe"
-      - name: Add & Commit
-        # You may pin to the exact commit or the version.
-        # uses: EndBug/add-and-commit@998652d28d7702d095d40f52ae42982a80ae8c7d
-        uses: EndBug/add-and-commit@v9.0.1
+      - name: Automatic Releases
+        uses: marvinpinto/action-automatic-releases@v1.2.1
         with:
-          add: ./dist
-          message: 自动打包
+          # GitHub secret token
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: "4.0 - Dev"
+          # Should this release be marked as a draft?
+          draft: true
+          # Should this release be marked as a pre-release?
+          prerelease: true # optional, default is true
+          # Release title (for automatic releases)
+          title: '4.0 - 自动构建'
+          # Assets to upload to the release
+          files: ./dist
+
