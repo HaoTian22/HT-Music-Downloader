@@ -35,10 +35,17 @@ jobs:
       - name: Pyinstaller
         run: |
           pyinstaller -F init.py -i icon.ico --add-data "assets;assets"
-      - name: Add & Commit
-        # You may pin to the exact commit or the version.
-        # uses: EndBug/add-and-commit@998652d28d7702d095d40f52ae42982a80ae8c7d
-        uses: EndBug/add-and-commit@v9.0.1
+      - name: Automatic Releases
+        uses: marvinpinto/action-automatic-releases@v1.2.1
         with:
-          add: ./dist
-          message: 自动打包
+          # GitHub secret token
+          repo_token: ${{ secrets.ACCESS_TOKEN }}
+          # Should this release be marked as a draft?
+          draft: true
+          # Should this release be marked as a pre-release?
+          prerelease: true # optional, default is true
+          # Release title (for automatic releases)
+          title: 自动构建
+          # Assets to upload to the release
+          files: ./dist
+
