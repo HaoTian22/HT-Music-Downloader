@@ -29,10 +29,10 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Install pip
-        run: pip -r requirement.txt
+        run: pip install -r requirements.txt
 
       # Runs a set of commands using the runners shell
-      - name: Pyinstall
+      - name: Pyinstaller
         run: |
           pyinstaller -F init.py -i icon.ico --add-data "assets;assets"
       - name: Add & Commit
