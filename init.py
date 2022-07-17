@@ -7,12 +7,14 @@ import requests
 from flet import (
     Checkbox,
     Column,
+    Theme,
     FloatingActionButton,
     IconButton,
     TextButton,
     Icon,
     OutlinedButton,
     Page,
+    theme,
     Row,
     Card,
     Tabs,
@@ -221,6 +223,12 @@ def main(page: Page):
     page.title = "HT's KuGou Downloader"
     page.horizontal_alignment = "center"
     page.scroll = "adaptive"
+    page.fonts = {
+        "opposans": "/OPPOSans-M.ttf",
+    }
+    page.theme_mode='light'
+    page.theme = Theme(font_family='opposans',
+                       use_material3=True, color_scheme_seed='blue')
     page.update()
 
     # create application instance
@@ -229,4 +237,4 @@ def main(page: Page):
     # add application's root control to the page
     page.add(app)
 
-flet.app(target=main,port=80)
+flet.app(target=main,port=80,assets_dir="assets")
