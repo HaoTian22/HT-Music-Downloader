@@ -1,4 +1,3 @@
-from ffpyplayer.player import MediaPlayer
 import flet
 import json
 from mutagen.id3 import ID3, APIC
@@ -54,9 +53,7 @@ class App(UserControl):
     def search_song(self, e):
         headers = {
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49'}
-        url = 'https://songsearch.kugou.com/song_search_v2?callback=jQuery11240770641348037286_1566198223730' \
-            '&keyword={}&page=1&pagesize=30&userid=-1&clientver=&platform=WebFilter&tag=em&filter=2&iscorrection' \
-            '=1&privilege_filter=0&_=1566198223734'.format(self.search.value)
+        url = 'https://songsearch.kugou.com/song_search_v2?callback=jQuery11240770641348037286_1566198223730&keyword={}&page=1&pagesize=50&clientver=&platform=WebFilter&tag=em&filter=2&iscorrection=1'.format(self.search.value)
         page = requests.get(url=url, headers=headers).text
         self.song_json = eval(page[41:-2])
         print(1)
@@ -72,21 +69,23 @@ class App(UserControl):
             song_name = song['SongName'].replace(
                 '<em>', '').replace('</em>', '').replace('<\\/em>', '')
             singer = song['SingerName']
+            album = song['AlbumID']
 
-            song = Song(file_name, song_name, file_hash, AlbumName, singer)
+            song = Song(file_name, song_name, file_hash, AlbumName, singer,album)
             # print(self.songs)
             self.songs.controls.append(song)
         self.update()
 
 # 每首歌作物有个类
 class Song(UserControl):
-    def __init__(self, filename, name, hash, AlbumName, singer):
+    def __init__(self, filename, name, hash, AlbumName, singer, AlbumID):
         super().__init__()
         self.filename = filename
         self.name = name
         self.hash = hash
         self.album = AlbumName
         self.singer = singer
+        self.albumID = AlbumID
 
     # 渲染控件
     def build(self):
@@ -133,8 +132,8 @@ class Song(UserControl):
             cookies[key] = values
         
         # 获取歌曲地址
-        hash_url = 'https://wwwapi.kugou.com/yy/index.php?r=play/getdata&callback=jQuery19107707606997391536_1606614033664&hash={}'.format(
-            self.hash)
+        hash_url = 'https://wwwapi.kugou.com/yy/index.php?r=play/getdata&callback=jQuery19107707606997391536_1606614033664&hash={}&album_id={}'.format(
+            self.hash,str(self.albumID))
         self.song_json = json.loads(requests.get(
             url=hash_url, headers=headers,cookies=cookies).text[41:-2])
         if self.song_json['status'] == 0:
@@ -194,9 +193,9 @@ class Song(UserControl):
     # 调用ffplay先下载再播放
     def play(self, *e):
         self.download()
-        # os.system('ffplay -i "音乐/'+self.filename+'.mp3"')
-        player = MediaPlayer("音乐/{}.mp3".format(self.filename))
-        pass
+        os.system('ffplay -i "音乐/'+self.filename+'.mp3"')
+#        player = MediaPlayer("音乐/{}.mp3".format(self.filename))
+#        pass
 
     # 报错
     def err(self, title='Opps...', content='Oh no! Something went wrong. :('):
