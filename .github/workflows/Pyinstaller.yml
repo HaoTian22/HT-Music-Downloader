@@ -39,6 +39,7 @@ jobs:
         with:
           # GitHub secret token
           repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: auto
           # Should this release be marked as a draft?
           draft: true
           # Should this release be marked as a pre-release?
