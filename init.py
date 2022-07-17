@@ -220,7 +220,7 @@ class Song(UserControl):
 
 # 主程序
 def main(page: Page):
-    page.title = "HT's KuGou Downloader"
+    page.title = "HT's Music Downloader"
     page.horizontal_alignment = "center"
     page.scroll = "adaptive"
     page.fonts = {
@@ -236,5 +236,13 @@ def main(page: Page):
 
     # add application's root control to the page
     page.add(app)
-
+    
+try:  # 检测音乐文件夹，没有则新建
+    os.mkdir('音乐')
+except:
+    print('检测到音乐文件夹已存在')
+try:
+    os.mkdir('数据')
+except:
+    print('检测到数据文件夹已存在')
 flet.app(target=main,port=80,assets_dir="assets")
