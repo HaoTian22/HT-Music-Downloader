@@ -58,9 +58,9 @@ class App(UserControl):
         url = 'https://songsearch.kugou.com/song_search_v2?callback=jQuery11240770641348037286_1566198223730&keyword={}&page=1&pagesize=50&clientver=&platform=WebFilter&tag=em&filter=2&iscorrection=1'.format(self.search.value)
         page = requests.get(url=url, headers=headers).text
         self.song_json = eval(page[41:-2])
-        print(1)
+        # print(1)
         self.songs.controls = []
-        print(2)
+        # print(2)
         # 提取歌曲有关信息
         for song in self.song_json['data']['lists']:
             file_name = song['FileName'].replace(
@@ -208,14 +208,17 @@ class Song(UserControl):
             actions_alignment="end",
         )
         error_msg.open = True
-        self.dialog=error_msg
         self.controls.append(error_msg)
         self.update()
 
     # 关闭报错
     def close_dia(self,e):
-        self.dialog.open = False
+        # 隐藏最新弹窗
+        self.controls[-1].open=False
         self.update()
+        # 删除弹窗
+        self.controls.pop()
+        # print('pop')
 
 
 # 主程序
