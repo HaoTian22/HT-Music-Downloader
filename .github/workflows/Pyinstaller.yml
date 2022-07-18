@@ -41,32 +41,12 @@ jobs:
         run: |
           pyinstaller init.py -i icon.ico --onefile --noconsole --add-data "assets;assets"
           ren ./dist/init.exe "HT-Music-Downloader-Windows.exe"
-          makecab .\dist\HT-Music-Downloader-Windows.exe '.\dist\HT-Music-Downloader-Windows.zip'
-      - name: Get Current Time
-        # You may pin to the exact commit or the version.
-        # uses: josStorer/get-current-time@df621be45fc1b97b75ca260364f64872eb1b8537
-        uses: josStorer/get-current-time@v2.0.0
-        id: get-time
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          # GitHub secret token
-          # repo_token: ${{ secrets.GITHUB_TOKEN }}
-          # tag_name: ${{ github.ref }}
-          # Should this release be marked as a draft?
-          draft: false
-          # Should this release be marked as a pre-release?
-          prerelease: true # optional, default is true
-          # Release title (for automatic releases)
-          name: ${{ github.ref }} - CI
-          # Assets to upload to the release
-          files: ./dist/HT-Music-Downloader-Windows.zip
+
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
         with:
           # Artifact name
-          name: Windows
+          name: HT-Music-Downloader-Windows
           # A file, directory or wildcard pattern that describes what to upload
           path: dist/HT-Music-Downloader-Windows.exe
           
@@ -99,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v3.1.0
         with:
           # Artifact name
-          name: Macos
+          name: HT-Music-Downloader-MacOS
           # A file, directory or wildcard pattern that describes what to upload
           path: dist/HT-Music-Downloader-MacOS
 
@@ -133,6 +113,39 @@ jobs:
         uses: actions/upload-artifact@v3.1.0
         with:
           # Artifact name
-          name: Linux
+          name: HT-Music-Downloader-Linux
           # A file, directory or wildcard pattern that describes what to upload
           path: dist/HT-Music-Downloader-Linux
+
+  Auto_release:
+   needs: [build-Windows,build-Macos,build-Linux]
+   runs-on: ubuntu-latest
+   steps:
+     - uses: actions/checkout@v2
+     - uses: actions/download-artifact@v2
+       with:
+        name: HT-Music-Downloader-Linux
+        path: zip
+     - uses: actions/download-artifact@v2
+       with:
+        name: HT-Music-Downloader-MacOS
+        path: zip
+     - uses: actions/download-artifact@v2
+       with:
+        name: HT-Music-Downloader-Windows
+        path: zip
+     - name: Release
+       uses: marvinpinto/action-automatic-releases@v1.2.1
+       if: startsWith(github.ref, 'refs/tags/')
+       with:
+        # GitHub secret token
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        automatic_release_tag: ${{ github.ref_name }}
+        # Should this release be marked as a draft?
+        draft: false
+        # Should this release be marked as a pre-release?
+        prerelease: true # optional, default is true
+        # Release title (for automatic releases)
+        title: ${{ github.ref_name }} - CI
+        # Assets to upload to the release
+        files: ./zip/*.zip
