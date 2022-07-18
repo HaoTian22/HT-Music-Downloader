@@ -90,11 +90,11 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Pyinstaller
         run: |
-          rename icon.ico icon.png
+          mv icon.ico icon.png
           mv icon.png ./tmp.iconset
           iconutil -c icns tmp.iconset -o icon.icns
           pyinstaller init.py -i icon.icns --onefile --noconsole --add-data "assets:assets"
-          rename ./dist/init "HT-Music-Downloader-MacOS"
+          mv ./dist/init "./dist/HT-Music-Downloader-MacOS"
           Compress-Archive -Path .\dist 'HT-Music-Downloader-MacOS.zip'
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
@@ -128,7 +128,8 @@ jobs:
       - name: Pyinstaller
         run: |
           pyinstaller init.py -i icon.ico --onefile --noconsole --add-data "assets:assets"
-          rename ./dist/init "HT-Music-Downloader-Linux"
+          
+          mv ./dist/init "./dist/HT-Music-Downloader-Linux"
           Compress-Archive -Path .\dist 'HT-Music-Downloader-Linux.zip'
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
