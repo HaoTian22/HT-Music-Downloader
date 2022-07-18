@@ -125,15 +125,30 @@ jobs:
      - uses: actions/download-artifact@v2
        with:
         name: HT-Music-Downloader-Linux
-        path: zip
+        path: zip/Linux
+     - uses: vimtor/action-zip@v1
+       with:
+        files: zip/Linux
+        dest: HT-Music-Downloader-Linux.zip
+
      - uses: actions/download-artifact@v2
        with:
         name: HT-Music-Downloader-MacOS
-        path: zip
+        path: zip/MacOS
+     - uses: vimtor/action-zip@v1
+       with:
+        files: zip/MacOS
+        dest: HT-Music-Downloader-MacOS.zip
+
      - uses: actions/download-artifact@v2
        with:
         name: HT-Music-Downloader-Windows
-        path: zip
+        path: zip/Windows
+     - uses: vimtor/action-zip@v1
+       with:
+        files: zip/Windows
+        dest: HT-Music-Downloader-Windows.zip
+
      - name: Release
        uses: marvinpinto/action-automatic-releases@v1.2.1
        if: startsWith(github.ref, 'refs/tags/')
@@ -148,4 +163,4 @@ jobs:
         # Release title (for automatic releases)
         title: ${{ github.ref_name }} - CI
         # Assets to upload to the release
-        files: ./zip/*.zip
+        files: *.zip
