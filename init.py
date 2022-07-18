@@ -372,4 +372,4 @@ with open('config.yml',encoding='utf-8') as f:
         config['theme']='blue'
 
 mixer.init()
-flet.app(target=main,port=80,assets_dir="assets")
+flet.app(target=main,port=4000,assets_dir="assets")
