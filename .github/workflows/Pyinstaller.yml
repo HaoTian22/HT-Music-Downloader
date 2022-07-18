@@ -33,7 +33,7 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Pyinstaller
         run: |
-          pyinstaller -F init.py -i icon.ico --noconsole --add-data "assets;assets"
+          pyinstaller init.py -i icon.ico --onefile --noconsole --add-data "assets;assets"
           ren ./dist/init.exe "HT-Music-Downloader-Windows.exe"
       - name: Automatic Releases
         uses: marvinpinto/action-automatic-releases@v1.2.1
