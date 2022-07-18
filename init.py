@@ -1,5 +1,6 @@
 import flet
 import json
+import yaml
 from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import MP3
 from pathlib import Path
@@ -148,9 +149,14 @@ class App(UserControl):
 
     def change_theme(self,color):
         print(color)
+        global config
         # self.page.theme.color_scheme_seed=color
         self.page.theme = Theme(font_family='opposans',use_material3=True, color_scheme_seed=color)
         self.page.update()
+
+        config['theme']=color
+        with open('config.yml', "w", encoding="utf-8") as f:
+            yaml.dump(config, f,allow_unicode=True)
         
 
     # 通过名字搜索歌曲
@@ -335,7 +341,9 @@ def main(page: Page):
     page.horizontal_alignment = "center"
     # page.scroll = "adaptive"
     page.fonts = {"opposans": "/OPPOSans-M.ttf",}
-    page.theme = Theme(font_family='opposans',use_material3=True, color_scheme_seed='blue')
+    global config
+    color=config['theme']
+    page.theme = Theme(font_family='opposans',use_material3=True, color_scheme_seed=color)
     page.update()
 
     # create application instance
@@ -353,5 +361,15 @@ except:
 #     os.mkdir('数据')
 # except:
 #     print('检测到数据文件夹已存在')
+
+config_file = Path('config.yml')
+config_file.touch(exist_ok=True)
+with open('config.yml',encoding='utf-8') as f:
+    config = yaml.load(f.read(), Loader=yaml.FullLoader)
+    if config==None:
+        config={}
+    if 'theme' not in config:
+        config['theme']='blue'
+
 mixer.init()
 flet.app(target=main,port=80,assets_dir="assets")

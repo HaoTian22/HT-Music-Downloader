@@ -35,6 +35,7 @@ jobs:
         run: |
           pyinstaller init.py -i icon.ico --onefile --noconsole --add-data "assets;assets"
           ren ./dist/init.exe "HT-Music-Downloader-Windows.exe"
+          7z a counter-windows.zip %CD%\dist\*.exe
       - name: Automatic Releases
         uses: marvinpinto/action-automatic-releases@v1.2.1
         with:
