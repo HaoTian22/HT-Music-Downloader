@@ -4,21 +4,20 @@ from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import MP3
 import os
 import requests
+from pygame import mixer
 from flet import (
-    Checkbox,
     Column,
     Theme,
     FloatingActionButton,
     IconButton,
     TextButton,
     Icon,
-    OutlinedButton,
     Page,
     theme,
     Row,
     Card,
-    Tabs,
     Text,
+    Stack,
     TextField,
     UserControl,
     AlertDialog,
@@ -35,21 +34,30 @@ class App(UserControl):
     def build(self):
         self.search = TextField(
             hint_text="Search from KuGou", expand=True,on_submit=self.search_song)
-        self.songs = Column()
+        self.songs = Column(scroll="auto",height=600)
 
-        return Column(
-            width=600,
-            controls=[
-                Row(
-                    controls=[
-                        self.search,
-                        FloatingActionButton(
-                            icon=icons.SEARCH, on_click=self.search_song),
-                    ],
-                ),
-                self.songs,
-            ],
-        )
+        return Stack([
+            Column(
+                width=600,
+                height=650,
+                controls=[
+                    Row(
+                        controls=[
+                            self.search,
+                            FloatingActionButton(
+                                icon=icons.SEARCH, on_click=self.search_song),
+                        ],
+                    ),
+                    self.songs,
+                ]
+            ),
+            FloatingActionButton(
+                icon=icons.STOP_ROUNDED, 
+                on_click=self.stop_song,
+                right=0,
+                bottom=0
+            )
+        ])
 
     # 通过名字搜索歌曲
     def search_song(self, e):
@@ -70,13 +78,18 @@ class App(UserControl):
                 '<em>', '').replace('</em>', '').replace('<\\/em>', '')
             song_name = song['SongName'].replace(
                 '<em>', '').replace('</em>', '').replace('<\\/em>', '')
-            singer = song['SingerName']
+            singer = song['SingerName'].replace(
+                '<em>', '').replace('</em>', '').replace('<\\/em>', '')
             album = song['AlbumID']
 
             song = Song(file_name, song_name, file_hash, AlbumName, singer,album)
             # print(self.songs)
             self.songs.controls.append(song)
         self.update()
+    
+    def stop_song(self,e):
+        mixer.music.stop()
+
 
 # 每首歌作物有个类
 class Song(UserControl):
@@ -195,9 +208,9 @@ class Song(UserControl):
     # 调用ffplay先下载再播放
     def play(self, *e):
         self.download()
-        os.system('ffplay -i "音乐/'+self.filename+'.mp3"')
-#        player = MediaPlayer("音乐/{}.mp3".format(self.filename))
-#        pass
+        # os.system('ffplay -i "音乐/'+self.filename+'.mp3"')
+        mixer.music.load('音乐/{}.mp3'.format(self.filename))
+        mixer.music.play()
 
     # 报错
     def err(self, title='Opps...', content='Oh no! Something went wrong. :('):
@@ -226,12 +239,8 @@ def main(page: Page):
     page.title = "HT's Music Downloader"
     page.horizontal_alignment = "center"
     page.scroll = "adaptive"
-    page.fonts = {
-        "opposans": "/OPPOSans-M.ttf",
-    }
-    page.theme_mode='light'
-    page.theme = Theme(font_family='opposans',
-                       use_material3=True, color_scheme_seed='blue')
+    page.fonts = {"opposans": "/OPPOSans-M.ttf",}
+    page.theme = Theme(font_family='opposans',use_material3=True, color_scheme_seed='blue')
     page.update()
 
     # create application instance
@@ -248,4 +257,5 @@ try:
     os.mkdir('数据')
 except:
     print('检测到数据文件夹已存在')
+mixer.init()
 flet.app(target=main,port=80,assets_dir="assets")
