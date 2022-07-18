@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-python@v4.1.0
         with:
           # Version range or exact version of Python to use, using SemVer's version range syntax. Reads from .python-version if unset.
-          python-version: 3.10
+          python-version: '3.10'
 
       # Runs a single command using the runners shell
       - name: Install pip
@@ -39,19 +39,24 @@ jobs:
           pyinstaller init.py -i icon.ico --onefile --noconsole --add-data "assets;assets"
           ren ./dist/init.exe "HT-Music-Downloader-Windows.exe"
           Compress-Archive -Path .\dist 'HT-Music-Downloader-Windows.zip'
+      - name: Get Current Time
+        # You may pin to the exact commit or the version.
+        # uses: josStorer/get-current-time@df621be45fc1b97b75ca260364f64872eb1b8537
+        uses: josStorer/get-current-time@v2.0.0
+        id: get-time
       - name: Automatic Releases
         id: Release-Win
         uses: marvinpinto/action-automatic-releases@v1.2.1
         with:
           # GitHub secret token
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: ${{ github.ref }}
+          automatic_release_tag: 4.0-Dev
           # Should this release be marked as a draft?
           draft: false
           # Should this release be marked as a pre-release?
           prerelease: true # optional, default is true
           # Release title (for automatic releases)
-          title: '4.0 Dev - ${{ steps.date.outputs.today }}'
+          title: '4.0 Dev - ${{ steps.get-time.outputs.ISOTime }}'
           # Assets to upload to the release
           files: ./dist
       - name: Upload a Build Artifact
@@ -76,7 +81,7 @@ jobs:
         uses: actions/setup-python@v4.1.0
         with:
           # Version range or exact version of Python to use, using SemVer's version range syntax. Reads from .python-version if unset.
-          python-version: 3.10
+          python-version: '3.10'
 
       # Runs a single command using the runners shell
       - name: Install pip
@@ -110,7 +115,7 @@ jobs:
         uses: actions/setup-python@v4.1.0
         with:
           # Version range or exact version of Python to use, using SemVer's version range syntax. Reads from .python-version if unset.
-          python-version: 3.10
+          python-version: '3.10'
 
       # Runs a single command using the runners shell
       - name: Install pip
