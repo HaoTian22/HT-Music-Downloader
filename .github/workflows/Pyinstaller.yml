@@ -7,7 +7,10 @@ on:
   # Triggers the workflow on push or pull request events but only for the "master" branch
   schedule:
   - cron: 0 0 1 * *
-  
+  push:
+    tags:
+      - "*.*.*"
+
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -38,27 +41,27 @@ jobs:
         run: |
           pyinstaller init.py -i icon.ico --onefile --noconsole --add-data "assets;assets"
           ren ./dist/init.exe "HT-Music-Downloader-Windows.exe"
-          Compress-Archive -Path .\dist 'HT-Music-Downloader-Windows.zip'
+          makecab .\dist\HT-Music-Downloader-Windows.exe '.\dist\HT-Music-Downloader-Windows.zip'
       - name: Get Current Time
         # You may pin to the exact commit or the version.
         # uses: josStorer/get-current-time@df621be45fc1b97b75ca260364f64872eb1b8537
         uses: josStorer/get-current-time@v2.0.0
         id: get-time
-      - name: Automatic Releases
-        id: Release-Win
-        uses: marvinpinto/action-automatic-releases@v1.2.1
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
+          if: startsWith(github.ref, 'refs/tags/')
           # GitHub secret token
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: 4.0-Dev
+          # repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.ref }}
           # Should this release be marked as a draft?
           draft: false
           # Should this release be marked as a pre-release?
           prerelease: true # optional, default is true
           # Release title (for automatic releases)
-          title: '4.0 Dev - ${{ steps.get-time.outputs.ISOTime }}'
+          name: ${{ github.ref }} - CI
           # Assets to upload to the release
-          files: ./dist
+          files: ./dist/HT-Music-Downloader-Windows.zip
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
         with:
@@ -92,14 +95,13 @@ jobs:
         run: |
           pyinstaller init.py --onefile --noconsole --add-data "assets:assets"
           mv ./dist/init "./dist/HT-Music-Downloader-MacOS"
-          zip -o ./dist/HT-Music-Downloader-MacOS.zip ./dist/HT-Music-Downloader-MacOS
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
         with:
           # Artifact name
           name: Macos
           # A file, directory or wildcard pattern that describes what to upload
-          path: dist/
+          path: dist/HT-Music-Downloader-MacOS
 
           
   build-Linux:
@@ -127,11 +129,10 @@ jobs:
           pyinstaller init.py -i icon.ico --onefile --noconsole --add-data "assets:assets"
           
           mv ./dist/init "./dist/HT-Music-Downloader-Linux"
-          tar -zcvf ./dist/HT-Music-Downloader-Linux.tar.gz "./dist/HT-Music-Downloader-Linux"
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
         with:
           # Artifact name
           name: Linux
           # A file, directory or wildcard pattern that describes what to upload
-          path: dist/HT-Music-Downloader-Linux.tar.gz
+          path: dist/HT-Music-Downloader-Linux
