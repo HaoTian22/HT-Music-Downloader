@@ -92,7 +92,7 @@ jobs:
         run: |
           pyinstaller init.py --onefile --noconsole --add-data "assets:assets"
           mv ./dist/init "./dist/HT-Music-Downloader-MacOS"
-          zip -o HT-Music-Downloader-MacOS.zip HT-Music-Downloader-MacOS
+          zip -o ./dist/HT-Music-Downloader-MacOS.zip ./dist/HT-Music-Downloader-MacOS
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
         with:
