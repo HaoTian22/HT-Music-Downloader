@@ -4,7 +4,7 @@
 + 支持根据歌曲名称搜索、酷狗码批量下载、哈希值批量下载等功能  
 + 并不具备付费歌曲解锁等功能（我也做不出来）  
 
-⚠️歌曲播放功能需要系统安装ffmepg并添加到环境变量，右键ffplay窗口调整进度  
+⚠️音乐播放功能无法调整进度
 ⚠️由于技术原因，exe程序可能需要花一分钟才能打开（pyinstaller打包的程序都这样）  
 
 Todo（可能咕到2024年）:  
@@ -12,13 +12,14 @@ Todo（可能咕到2024年）:
 - [ ] 其他音乐源
 - [ ] 播放本地音乐（拖放导入）
 - [ ] 跨平台预编译版本
-- [ ] 内置音乐播放器
-
+- [x] 内置音乐播放器
+- [ ] 设置页面
 
 Power By Python|Flutter|Flet
 
 屏幕截图：  
 ![uTools_1658079825721](https://user-images.githubusercontent.com/48882584/179419930-eb302d00-e294-44f3-9a19-9c32e828f433.png)
 ![uTools_1658079869876](https://user-images.githubusercontent.com/48882584/179419925-326f0f47-6aa7-43d1-9c72-1eac80cac2ad.png)
-![uTools_1658080110511](https://user-images.githubusercontent.com/48882584/179419928-e8a4c33b-2070-4ec1-b88d-36ec57009077.png)
+![image](https://user-images.githubusercontent.com/48882584/179493612-36612d97-3763-4d69-a1b1-80a97f7718fb.png)
+
 
