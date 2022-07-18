@@ -2,7 +2,7 @@ import flet
 import json
 from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import MP3
-import os
+from pathlib import Path
 import requests
 from pygame import mixer
 from flet import (
@@ -152,7 +152,7 @@ class Song(UserControl):
         self.song_json = json.loads(requests.get(
             url=hash_url, headers=headers,cookies=cookies).text[41:-2])
         if self.song_json['status'] == 0:
-            os.system("start https://www.kugou.com/song/")
+            # os.system("start https://www.kugou.com/song/")
             self.err()
         song_url = self.song_json['data']['play_url'].replace('\\', '')
         song_free = self.song_json['data']['is_free_part']
@@ -250,12 +250,13 @@ def main(page: Page):
     page.add(app)
     
 try:  # 检测音乐文件夹，没有则新建
-    os.mkdir('音乐')
+    path=Path('音乐')
+    path.mkdir()
 except:
     print('检测到音乐文件夹已存在')
-try:
-    os.mkdir('数据')
-except:
-    print('检测到数据文件夹已存在')
+# try:
+#     os.mkdir('数据')
+# except:
+#     print('检测到数据文件夹已存在')
 mixer.init()
 flet.app(target=main,port=80,assets_dir="assets")
