@@ -163,4 +163,5 @@ jobs:
         # Release title (for automatic releases)
         title: ${{ github.ref_name }} - CI
         # Assets to upload to the release
-        files: *.zip
+        files: |
+          *.zip
