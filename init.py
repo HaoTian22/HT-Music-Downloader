@@ -9,9 +9,15 @@ from flet import (
     Column,
     Theme,
     FloatingActionButton,
+    NavigationRail,
+    padding,
+    NavigationRailDestination,
+    Divider,
+    VerticalDivider,
     IconButton,
     TextButton,
     Icon,
+    icons,
     Page,
     theme,
     Row,
@@ -32,13 +38,59 @@ from flet import (
 class App(UserControl):
     # 初始化控件
     def build(self):
+        self.side_rail = NavigationRail(selected_index=0)
+        self.side_rail = NavigationRail(
+            selected_index=0,
+            label_type="all",
+            min_width=100,
+            # height=650,
+            min_extended_width=400,
+            # leading=Icon(icons.QUEUE_MUSIC_ROUNDED),
+            group_alignment=-1,
+            destinations=[
+                NavigationRailDestination(
+                    icon=icons.HOME_OUTLINED, selected_icon=icons.HOME_ROUNDED, label="Home"
+                ),
+                NavigationRailDestination(
+                    icon_content=Icon(icons.LIBRARY_MUSIC_OUTLINED),
+                    selected_icon_content=Icon(icons.LIBRARY_MUSIC_ROUNDED),
+                    label="Local",
+                ),
+                NavigationRailDestination(
+                    icon=icons.SETTINGS_OUTLINED,
+                    selected_icon_content=Icon(icons.SETTINGS_ROUNDED),
+                    label_content=Text("Settings"),
+                ),
+            ],
+            on_change=self.change_page
+        )
+        # self.change_page()
+        self.current_page=self.main_page()
+        return Row(controls=[self.side_rail,VerticalDivider(width=1), self.current_page],height=650,expand=True)
+
+    def change_page(self,*e): # 切换页面
+        if self.side_rail.selected_index == 0:
+            print("home")
+            self.current_page = self.main_page()
+        elif self.side_rail.selected_index == 1:
+            print("local")
+            self.current_page = self.local_page()
+        elif self.side_rail.selected_index == 2:
+            print("settings")
+            self.current_page = self.settings_page()
+        print(self.side_rail.selected_index)
+        self.controls = [Row(controls=[self.side_rail,VerticalDivider(width=1), self.current_page],height=650,expand=True)]
+    # 更新控件
+        self.update()
+
+    def main_page(self): # 主页面
         self.search = TextField(
             hint_text="Search from KuGou", expand=True,on_submit=self.search_song)
-        self.songs = Column(scroll="auto",height=600)
+        self.songs = Column(scroll="auto",width=600,height=600)
 
         return Stack([
             Column(
-                width=600,
+                width=1000,
                 height=650,
                 controls=[
                     Row(
@@ -48,7 +100,7 @@ class App(UserControl):
                                 icon=icons.SEARCH, on_click=self.search_song),
                         ],
                     ),
-                    self.songs,
+                    Container(self.songs,padding=padding.symmetric(horizontal=200)),
                 ]
             ),
             FloatingActionButton(
@@ -58,6 +110,48 @@ class App(UserControl):
                 bottom=0
             )
         ])
+    
+    def local_page(self): # 本地音乐页面
+        return Text("Local Music Page\n Under Construction")
+
+    def settings_page(self): # 设置页面
+        theme_setting = Card(
+            content=Container(
+                padding=10,
+                content=Row([
+                    Icon(icons.COLOR_LENS),
+                    Text("Theme-Color",expand=True),
+                    VerticalDivider(width=400),
+                    IconButton(icon=icons.CIRCLE, icon_color='red', tooltip='red', on_click=lambda e:self.change_theme('red')),
+                    IconButton(icon=icons.CIRCLE,icon_color='pink',tooltip='pink', on_click=lambda e:self.change_theme('pink')),
+                    IconButton(icon=icons.CIRCLE,icon_color='orange',tooltip='orange', on_click=lambda e:self.change_theme('orange')),
+                    IconButton(icon=icons.CIRCLE,icon_color='yellow',tooltip='yellow', on_click=lambda e:self.change_theme('yellow')),
+                    IconButton(icon=icons.CIRCLE, icon_color='green', tooltip='green', on_click=lambda e:self.change_theme('green')),
+                    IconButton(icon=icons.CIRCLE,icon_color='blue',tooltip='blue', on_click=lambda e:self.change_theme('blue')),
+                    IconButton(icon=icons.CIRCLE,icon_color='purple',tooltip='purple', on_click=lambda e:self.change_theme('purple')),
+                    IconButton(icon=icons.CIRCLE,icon_color='brown',tooltip='brown', on_click=lambda e:self.change_theme('brown')),
+                ])
+                    
+            ),
+        )
+            
+        settings = Column(
+            width=1000,
+            height=650,
+            scroll="auto",
+            controls=[
+                Text("Settings"),
+                theme_setting,
+            ]
+        )
+        return settings
+
+    def change_theme(self,color):
+        print(color)
+        # self.page.theme.color_scheme_seed=color
+        self.page.theme = Theme(font_family='opposans',use_material3=True, color_scheme_seed=color)
+        self.page.update()
+        
 
     # 通过名字搜索歌曲
     def search_song(self, e):
@@ -91,7 +185,7 @@ class App(UserControl):
         mixer.music.stop()
 
 
-# 每首歌作物有个类
+# 每首歌作为一个类
 class Song(UserControl):
     def __init__(self, filename, name, hash, AlbumName, singer, AlbumID):
         super().__init__()
@@ -160,7 +254,7 @@ class Song(UserControl):
         if song_url == '':  # 检测歌曲是否能下载
             self.err('下载失败','该歌曲无版权或者需要付费')
         else:
-            # try:  # 检测是否存在已下载文件
+            try:  # 检测是否存在已下载文件
                 if song_free == 1:  # 试听歌曲检测
                     notice = '⚠歌曲为试听版，请核实'
                     self.err('提示',notice)
@@ -191,10 +285,11 @@ class Song(UserControl):
                 except:
                     self.err('提示',"歌曲封面写入失败")
 
-            # except:  # 歌曲存在的替换
-            #     self.err('下载失败','歌曲已存在')
+            except:  # 歌曲存在的替换
+                self.err('下载失败','歌曲已存在')
+                self.download_state.icon=icons.DOWNLOAD_DONE_ROUNDED
 
-    def get_lyrics(self):
+    def get_lyrics(self): # 获取歌词
         self.lyrics=self.song_json['data']['lyrics']
         if str(self.lyrics).find('纯音乐，请欣赏') != -1:
             self.err('提示','✔已检测到纯音乐，不需要歌词')
@@ -238,7 +333,7 @@ class Song(UserControl):
 def main(page: Page):
     page.title = "HT's Music Downloader"
     page.horizontal_alignment = "center"
-    page.scroll = "adaptive"
+    # page.scroll = "adaptive"
     page.fonts = {"opposans": "/OPPOSans-M.ttf",}
     page.theme = Theme(font_family='opposans',use_material3=True, color_scheme_seed='blue')
     page.update()
