@@ -1,5 +1,6 @@
 import flet
 import json
+import logging
 import yaml
 from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import MP3
@@ -66,30 +67,31 @@ class App(UserControl):
             on_change=self.change_page
         )
         # self.change_page()
-        self.current_page=self.main_page()
+        self.main_page = self.build_main_page()
+        self.local_page = self.build_local_page()
+        self.settings_page = self.build_settings_page()
+        self.current_page = self.main_page
         return Row(controls=[self.side_rail,VerticalDivider(width=1), self.current_page],height=650,expand=True)
 
     def change_page(self,*e): # 切换页面
         if self.side_rail.selected_index == 0:
-            print("home")
-            self.current_page = self.main_page()
+            logging.info("change page to main page")
+            self.current_page = self.main_page
         elif self.side_rail.selected_index == 1:
-            print("local")
-            self.current_page = self.local_page()
+            logging.info("change page to local page")
+            self.current_page = self.local_page
         elif self.side_rail.selected_index == 2:
-            print("settings")
-            self.current_page = self.settings_page()
-        print(self.side_rail.selected_index)
+            logging.info("change page to settings page")
+            self.current_page = self.settings_page
         self.controls = [Row(controls=[self.side_rail,VerticalDivider(width=1), self.current_page],height=650,expand=True)]
     # 更新控件
         self.update()
 
-    def main_page(self): # 主页面
+    def build_main_page(self): # 主页面
         self.search = TextField(
             hint_text="Search from KuGou", expand=True,on_submit=self.search_song)
         self.songs = Column(scroll="auto",width=600,height=600)
-
-        return Stack([
+        page = Stack([
             Column(
                 width=1000,
                 height=650,
@@ -111,11 +113,15 @@ class App(UserControl):
                 bottom=0
             )
         ])
+        # self.main_page=page
+        logging.info("build main page")
+        return page
     
-    def local_page(self): # 本地音乐页面
+    def build_local_page(self): # 本地音乐页面
+        logging.info("build local page")
         return Text("Local Music Page\n Under Construction")
 
-    def settings_page(self): # 设置页面
+    def build_settings_page(self): # 设置页面
         theme_setting = Card(
             content=Container(
                 padding=10,
@@ -145,10 +151,10 @@ class App(UserControl):
                 theme_setting,
             ]
         )
+        logging.info("build settings page")
         return settings
 
     def change_theme(self,color):
-        print(color)
         global config
         # self.page.theme.color_scheme_seed=color
         self.page.theme = Theme(font_family='opposans',use_material3=True, color_scheme_seed=color)
@@ -157,18 +163,19 @@ class App(UserControl):
         config['theme']=color
         with open('config.yml', "w", encoding="utf-8") as f:
             yaml.dump(config, f,allow_unicode=True)
+        logging.info("change theme to %s" % color)
         
 
     # 通过名字搜索歌曲
     def search_song(self, e):
+        logging.info("search song")
         headers = {
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49'}
         url = 'https://songsearch.kugou.com/song_search_v2?callback=jQuery11240770641348037286_1566198223730&keyword={}&page=1&pagesize=50&clientver=&platform=WebFilter&tag=em&filter=2&iscorrection=1'.format(self.search.value)
         page = requests.get(url=url, headers=headers).text
         self.song_json = eval(page[41:-2])
-        # print(1)
+        logging.debug(self.song_json)
         self.songs.controls = []
-        # print(2)
         # 提取歌曲有关信息
         for song in self.song_json['data']['lists']:
             file_name = song['FileName'].replace(
@@ -183,7 +190,6 @@ class App(UserControl):
             album = song['AlbumID']
 
             song = Song(file_name, song_name, file_hash, AlbumName, singer,album)
-            # print(self.songs)
             self.songs.controls.append(song)
         self.update()
     
@@ -205,6 +211,7 @@ class Song(UserControl):
     # 渲染控件
     def build(self):
         # self.display_name = Text(value=self.name, expand=1)
+        logging.info("build song"+self.filename)
         self.download_state = IconButton(
             icon=icons.DOWNLOAD_ROUNDED,
             tooltip="Download this song",
@@ -253,17 +260,23 @@ class Song(UserControl):
             url=hash_url, headers=headers,cookies=cookies).text[41:-2])
         if self.song_json['status'] == 0:
             # os.system("start https://www.kugou.com/song/")
+            logging.error("download error")
             self.err()
         song_url = self.song_json['data']['play_url'].replace('\\', '')
         song_free = self.song_json['data']['is_free_part']
         img_url = self.song_json['data']['img']
+        logging.debug(self.song_json)
+        logging.info("download song"+self.filename)
+        # 下载歌曲
         if song_url == '':  # 检测歌曲是否能下载
+            logging.warning('song url is empty')
             self.err('下载失败','该歌曲无版权或者需要付费')
         else:
             try:  # 检测是否存在已下载文件
                 if song_free == 1:  # 试听歌曲检测
                     notice = '⚠歌曲为试听版，请核实'
                     self.err('提示',notice)
+                    logging.warning('song is trial')
                 with open('音乐/' + self.filename + '.mp3', 'xb') as f:  # 检测歌曲是否已经存在，不存在则写入歌曲
                     song = requests.get(url=song_url, headers=headers,cookies=cookies)
                     f.write(song.content)
@@ -289,22 +302,26 @@ class Song(UserControl):
                     )
                     songFile.save()
                 except:
+                    logging.warning('Fail to write song cover')
                     self.err('提示',"歌曲封面写入失败")
 
             except:  # 歌曲存在的替换
                 self.err('下载失败','歌曲已存在')
+                logging.warning('song {} is exist'.format(self.filename))
                 self.download_state.icon=icons.DOWNLOAD_DONE_ROUNDED
 
     def get_lyrics(self): # 获取歌词
         self.lyrics=self.song_json['data']['lyrics']
         if str(self.lyrics).find('纯音乐，请欣赏') != -1:
+            logging.warning('song is pure music')
             self.err('提示','✔已检测到纯音乐，不需要歌词')
         elif self.lyrics == '':
+            logging.warning('song has no lyrics')
             self.err('提示','❌此歌曲无歌词')
         else:
             with open('音乐/' + self.song_json['data']['audio_name'] + '.lrc', 'w', encoding='utf-8') as f:
                 f.write(self.lyrics.replace('\ufeff', '').replace('\r', ''))
-            print('歌词下载完成')
+            logging.info('Download lyrics success')
 
     # 调用ffplay先下载再播放
     def play(self, *e):
@@ -332,10 +349,10 @@ class Song(UserControl):
         self.update()
         # 删除弹窗
         self.controls.pop()
-        # print('pop')
 
 
 # 主程序
+logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
 def main(page: Page):
     page.title = "HT's Music Downloader"
     page.horizontal_alignment = "center"
@@ -356,12 +373,13 @@ try:  # 检测音乐文件夹，没有则新建
     path=Path('音乐')
     path.mkdir()
 except:
-    print('检测到音乐文件夹已存在')
+    logging.warning('Music Directory Exists')
 # try:
 #     os.mkdir('数据')
 # except:
 #     print('检测到数据文件夹已存在')
 
+logging.info('Initializing config...')
 config_file = Path('config.yml')
 config_file.touch(exist_ok=True)
 with open('config.yml',encoding='utf-8') as f:
