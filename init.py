@@ -88,8 +88,15 @@ class App(UserControl):
     def build_main_page(self): # 主页面
         self.search = TextField(
             hint_text="Search from KuGou", expand=True,on_submit=self.search_song)
+        self.play_state = True
+        self.play_button = FloatingActionButton(
+                icon=icons.PAUSE_ROUNDED, 
+                on_click=self.change_play_state,
+                right=10,
+                bottom=5,
+            )
         self.songs = Column(scroll="auto",width=1000,height=600,horizontal_alignment="center")
-        page = Stack([
+        page = Stack(controls=[
             Column(
                 width=1000,
                 height=650,
@@ -105,12 +112,7 @@ class App(UserControl):
                     Row(controls=[self.songs]),
                 ]
             ),
-            FloatingActionButton(
-                icon=icons.STOP_ROUNDED, 
-                on_click=self.stop_song,
-                right=10,
-                bottom=5
-            )
+            self.play_button,
         ])
         # self.main_page=page
         logging.info("build main page")
@@ -192,9 +194,13 @@ class App(UserControl):
             self.songs.controls.append(song)
         self.update()
     
-    def stop_song(self,e):
-        mixer.music.stop()
-
+    def change_play_state(self,*e):
+        self.play_state = not self.play_state
+        self.play_button.icon = icons.PAUSE_ROUNDED if self.play_state else icons.PLAY_ARROW_ROUNDED
+        mixer.music.unpause() if self.play_state else mixer.music.pause()
+        logging.info("change play state to %s" % self.play_state)
+        self.update()
+    
 
 # 每首歌作为一个类
 class Song(UserControl):
@@ -214,7 +220,7 @@ class Song(UserControl):
         self.download_state = IconButton(
             icon=icons.DOWNLOAD_ROUNDED,
             tooltip="Download this song",
-            on_click=self.download,
+            on_click=self.download
         )
         self.display_view = Card(
             content=Container(
@@ -232,10 +238,12 @@ class Song(UserControl):
                             IconButton(
                                 icon=icons.PLAY_ARROW_ROUNDED,
                                 tooltip="Play",
-                                on_click=self.play,
-                            ), self.download_state],
-                            alignment="end",
+                                on_click=self.play
                             ),
+                            self.download_state
+                        ],
+                            alignment="end"
+                        )
                     ]
                 )
             )
@@ -282,6 +290,7 @@ class Song(UserControl):
                     f.write(song.content)
                 self.get_lyrics()
                 self.download_state.icon=icons.DOWNLOAD_DONE_ROUNDED
+                self.update()
                 # try:  # 写入歌曲信息ID3 v2.3
                 logging.info("write id3")
                 mp3file = '音乐/' + self.filename + '.mp3'
@@ -308,10 +317,11 @@ class Song(UserControl):
                 #     logging.warning('Fail to write song cover')
                 #     self.err('提示',"歌曲封面写入失败")
 
-            except:  # 歌曲存在的替换
+            except FileExistsError:  # 歌曲已存在
                 self.err('下载失败','歌曲已存在')
                 logging.warning('song {} is exist'.format(self.filename))
                 self.download_state.icon=icons.DOWNLOAD_DONE_ROUNDED
+                self.update()
 
     def get_lyrics(self): # 获取歌词
         self.lyrics=self.song_json['data']['lyrics']
@@ -327,10 +337,12 @@ class Song(UserControl):
             logging.info('Download lyrics success')
 
     # 调用ffplay先下载再播放
-    def play(self, *e):
+    def play(self, e):
         self.download()
         # os.system('ffplay -i "音乐/'+self.filename+'.mp3"')
         mixer.music.load('音乐/{}.mp3'.format(self.filename))
+        e.page.controls[0].play_state = False
+        e.page.controls[0].change_play_state()
         mixer.music.play()
 
     # 报错
@@ -355,7 +367,7 @@ class Song(UserControl):
 
 
 # 主程序
-logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
 def main(page: Page):
     page.title = "HT's Music Downloader"
     # page.horizontal_alignment = "center"
