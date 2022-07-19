@@ -1,4 +1,3 @@
-from asyncio.log import logger
 import flet
 import json
 import logging
@@ -12,7 +11,6 @@ from flet import (
     Theme,
     FloatingActionButton,
     NavigationRail,
-    padding,
     Switch,
     NavigationRailDestination,
     Divider,
