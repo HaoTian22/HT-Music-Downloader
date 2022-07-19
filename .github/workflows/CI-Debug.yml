@@ -30,12 +30,12 @@ jobs:
       - uses: actions/checkout@v3
       - if: startsWith(github.ref, 'refs/tags/') 
         run: |
-          $version = "&{{github.ref_name}}"
+          version = "&{{github.ref_name}}"
           echo "version = $version" >> $GITHUB_ENV
           
       - if: github.event_name=='workflow_dispatch'
         run: |
-          $version = "&{{inputs.version}}"
+          version = "&{{inputs.version}}"
           echo "version = $version" >> $GITHUB_ENV
 
       - run: echo "${{env.version}}"
