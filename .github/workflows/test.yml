@@ -38,7 +38,7 @@ jobs:
             echo "version = $version" >> $GITHUB_ENV
             echo "release = True" >> $GITHUB_ENV
             echo '${{env.version}}'
-      - run: '${{env.release}}'
+      - run: echo '${{env.release}}'
       - name: Release
-        if: '${{env.release}}'
+        if: '${{env.release}}' == Tru
         run: echo '${{env.version}}'
