@@ -1,0 +1,170 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Auto-Release
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
+  schedule:
+  - cron: 0 0 1 * *
+  # Allows you to run this workflow manually from the Actions tab
+  push:
+    tags:
+      - "*.*.*"
+      
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "版本号"
+        type: string
+        required: true
+        
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build-Windows:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4.1.0
+        with:
+          # Version range or exact version of Python to use, using SemVer's version range syntax. Reads from .python-version if unset.
+          python-version: '3.10'
+
+      # Runs a single command using the runners shell
+      - name: Install pip
+        run: pip install -r requirements.txt
+
+      # Runs a set of commands using the runners shell
+      - name: Pyinstaller
+        run: |
+          pyinstaller init.py -i icon.ico --onefile --noconsole --add-data "assets;assets"
+          ren ./dist/init.exe "HT-Music-Downloader-Windows.exe"
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          # Artifact name
+          name: HT-Music-Downloader-Windows
+          # A file, directory or wildcard pattern that describes what to upload
+          path: dist/HT-Music-Downloader-Windows.exe
+          
+          
+  build-MacOS:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4.1.0
+        with:
+          # Version range or exact version of Python to use, using SemVer's version range syntax. Reads from .python-version if unset.
+          python-version: '3.10'
+
+      # Runs a single command using the runners shell
+      - name: Install pip
+        run: pip install -r requirements.txt
+
+      # Runs a set of commands using the runners shell
+      - name: Pyinstaller
+        run: |
+          pyinstaller init.py --onefile --noconsole --add-data "assets:assets"
+          mv ./dist/init "./dist/HT-Music-Downloader-MacOS"
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          # Artifact name
+          name: HT-Music-Downloader-MacOS
+          # A file, directory or wildcard pattern that describes what to upload
+          path: dist/HT-Music-Downloader-MacOS
+
+          
+  build-Linux:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4.1.0
+        with:
+          # Version range or exact version of Python to use, using SemVer's version range syntax. Reads from .python-version if unset.
+          python-version: '3.10'
+
+      # Runs a single command using the runners shell
+      - name: Install pip
+        run: pip install -r requirements.txt
+
+      # Runs a set of commands using the runners shell
+      - name: Pyinstaller
+        run: |
+          pyinstaller init.py -i icon.ico --onefile --noconsole --add-data "assets:assets"
+          
+          mv ./dist/init "./dist/HT-Music-Downloader-Linux"
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          # Artifact name
+          name: HT-Music-Downloader-Linux
+          # A file, directory or wildcard pattern that describes what to upload
+          path: dist/HT-Music-Downloader-Linux
+
+  Auto_release:
+   needs: [build-Windows,build-Macos,build-Linux]
+   runs-on: ubuntu-latest
+   steps:
+     - uses: actions/checkout@v2
+     - uses: actions/download-artifact@v2
+       with:
+        name: HT-Music-Downloader-Linux
+        path: zip/Linux
+     - uses: vimtor/action-zip@v1
+       with:
+        files: zip/Linux
+        dest: HT-Music-Downloader-Linux.zip
+
+     - uses: actions/download-artifact@v2
+       with:
+        name: HT-Music-Downloader-MacOS
+        path: zip/MacOS
+     - uses: vimtor/action-zip@v1
+       with:
+        files: zip/MacOS
+        dest: HT-Music-Downloader-MacOS.zip
+
+     - uses: actions/download-artifact@v2
+       with:
+        name: HT-Music-Downloader-Windows
+        path: zip/Windows
+     - uses: vimtor/action-zip@v1
+       with:
+        files: zip/Windows
+        dest: HT-Music-Downloader-Windows.zip
+
+     - name: Release
+       uses: softprops/action-gh-release@v1
+       if: github.event_name=='workflow_dispatch'
+       with:
+        tag_name: "${{ github.event.inputs.version }}"
+        # Should this release be marked as a draft?
+        draft: false
+        generate_release_notes: true
+        # Should this release be marked as a pre-release?
+        prerelease: true # optional, default is true
+        # Release title (for automatic releases)
+        name: "${{ github.event.inputs.version }} - CI"
+        # Assets to upload to the release
+        files: |
+          *.zip
