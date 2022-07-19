@@ -1,23 +1,21 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Auto-Release
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "master" branch
   schedule:
   - cron: 0 0 1 * *
-  push:
-    tags:
-      - "*.*.*"
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
       version:
-        default: "1.0.0"
+        default: "0.0.0"
         description: "版本号"
         type: string
         required: true
+        
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -153,26 +151,19 @@ jobs:
         files: zip/Windows
         dest: HT-Music-Downloader-Windows.zip
 
-     - if: startsWith(github.ref, 'refs/tags/') 
-       run: echo 'version = &{{github.ref_name}}' >> $GITHUB_ENV
-     - if: github.event_name=='workflow_dispatch'
-       run: echo 'version = &{{inputs.version}}' >> $GITHUB_ENV
-
-     - run: echo ${{env.version}}
-       
      - name: Release
        uses: marvinpinto/action-automatic-releases@v1.2.1
-       if: ${{ env.version }}
+       if: github.event_name=='workflow_dispatch'
        with:
         # GitHub secret token
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        automatic_release_tag: ${{ github.ref_name }}
+        automatic_release_tag: "&{{inputs.version}}"
         # Should this release be marked as a draft?
         draft: false
         # Should this release be marked as a pre-release?
         prerelease: true # optional, default is true
         # Release title (for automatic releases)
-        title: ${{ env.version }} - CI
+        title: "&{{inputs.version}} - CI"
         # Assets to upload to the release
         files: |
           *.zip
