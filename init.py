@@ -1,3 +1,4 @@
+from asyncio.log import logger
 import flet
 import json
 import logging
@@ -12,6 +13,7 @@ from flet import (
     FloatingActionButton,
     NavigationRail,
     padding,
+    Switch,
     NavigationRailDestination,
     Divider,
     VerticalDivider,
@@ -35,6 +37,8 @@ from flet import (
 )
 
 # App作为一个类
+
+
 class App(UserControl):
     # 初始化控件
     def build(self):
@@ -69,33 +73,34 @@ class App(UserControl):
         self.local_page = self.build_local_page()
         self.settings_page = self.build_settings_page()
         self.current_page = self.main_page
-        return Row(controls=[self.side_rail,VerticalDivider(width=1), self.current_page],height=650,expand=True)
+        return Row(controls=[self.side_rail, VerticalDivider(width=1), self.current_page], height=650, expand=True)
 
-    def change_page(self,*e): # 切换页面
+    def change_page(self, *e):  # 切换页面
         if self.side_rail.selected_index == 0:
-            logging.info("change page to main page")
+            logger.info("change page to main page")
             self.current_page = self.main_page
         elif self.side_rail.selected_index == 1:
-            logging.info("change page to local page")
+            logger.info("change page to local page")
             self.current_page = self.local_page
         elif self.side_rail.selected_index == 2:
-            logging.info("change page to settings page")
+            logger.info("change page to settings page")
             self.current_page = self.settings_page
-        self.controls = [Row(controls=[self.side_rail,VerticalDivider(width=1), self.current_page],height=650,expand=True)]
+        self.controls = [Row(controls=[self.side_rail, VerticalDivider(
+            width=1), self.current_page], height=650, expand=True)]
     # 更新控件
         self.update()
 
-    def build_main_page(self): # 主页面
+    def build_main_page(self):  # 主页面
         self.search = TextField(
-            hint_text="Search from KuGou", expand=True,on_submit=self.search_song)
+            hint_text="Search from KuGou", expand=True, on_submit=self.search_song)
         self.play_state = True
         self.play_button = FloatingActionButton(
-                icon=icons.PAUSE_ROUNDED, 
-                on_click=self.change_play_state,
-                right=10,
-                bottom=5,
-            )
-        self.songs = Column(scroll="auto",width=1000,height=600,horizontal_alignment="center")
+            icon=icons.PAUSE_ROUNDED,
+            on_click=self.change_play_state,
+            right=10,
+            bottom=5,
+        )
+        self.songs = Column(scroll="auto", width=1000, height=600, horizontal_alignment="center")
         page = Stack(controls=[
             Column(
                 width=1000,
@@ -115,34 +120,47 @@ class App(UserControl):
             self.play_button,
         ])
         # self.main_page=page
-        logging.info("build main page")
+        logger.info("build main page")
         return page
-    
-    def build_local_page(self): # 本地音乐页面
-        logging.info("build local page")
+
+    def build_local_page(self):  # 本地音乐页面
+        logger.info("build local page")
         return Text("Local Music Page\n Under Construction")
 
-    def build_settings_page(self): # 设置页面
+    def build_settings_page(self):  # 设置页面
         theme_setting = Card(
             content=Container(
                 padding=10,
                 content=Row([
                     Icon(icons.COLOR_LENS),
-                    Text("Theme-Color",expand=True),
-                    VerticalDivider(width=400),
+                    Text("Theme-Color", expand=True),
+                    VerticalDivider(width=420),
                     IconButton(icon=icons.CIRCLE, icon_color='red', tooltip='red', on_click=lambda e:self.change_theme('red')),
-                    IconButton(icon=icons.CIRCLE,icon_color='pink',tooltip='pink', on_click=lambda e:self.change_theme('pink')),
-                    IconButton(icon=icons.CIRCLE,icon_color='orange',tooltip='orange', on_click=lambda e:self.change_theme('orange')),
-                    IconButton(icon=icons.CIRCLE,icon_color='yellow',tooltip='yellow', on_click=lambda e:self.change_theme('yellow')),
+                    IconButton(icon=icons.CIRCLE, icon_color='pink', tooltip='pink', on_click=lambda e:self.change_theme('pink')),
+                    IconButton(icon=icons.CIRCLE, icon_color='orange', tooltip='orange', on_click=lambda e:self.change_theme('orange')),
+                    IconButton(icon=icons.CIRCLE, icon_color='yellow', tooltip='yellow', on_click=lambda e:self.change_theme('yellow')),
                     IconButton(icon=icons.CIRCLE, icon_color='green', tooltip='green', on_click=lambda e:self.change_theme('green')),
-                    IconButton(icon=icons.CIRCLE,icon_color='blue',tooltip='blue', on_click=lambda e:self.change_theme('blue')),
-                    IconButton(icon=icons.CIRCLE,icon_color='purple',tooltip='purple', on_click=lambda e:self.change_theme('purple')),
-                    IconButton(icon=icons.CIRCLE,icon_color='brown',tooltip='brown', on_click=lambda e:self.change_theme('brown')),
+                    IconButton(icon=icons.CIRCLE, icon_color='blue', tooltip='blue', on_click=lambda e:self.change_theme('blue')),
+                    IconButton(icon=icons.CIRCLE, icon_color='purple', tooltip='purple', on_click=lambda e:self.change_theme('purple')),
+                    IconButton(icon=icons.CIRCLE, icon_color='brown', tooltip='brown', on_click=lambda e:self.change_theme('brown')),
                 ])
-                    
+
             ),
         )
-            
+        global config
+        debug_setting = Card(
+            content=Container(
+                padding=10, 
+                # height=200,
+                content=Row([
+                    Icon(icons.BUG_REPORT_ROUNDED),
+                    Text("Debug-Mode", expand=True),
+                    VerticalDivider(width=750),
+                    Switch(on_change=self.change_debug_mode, value=config['debug'])
+                ])
+            )
+        )
+
         settings = Column(
             width=1000,
             height=650,
@@ -150,57 +168,61 @@ class App(UserControl):
             controls=[
                 Text("Settings"),
                 theme_setting,
+                debug_setting,
             ]
         )
-        logging.info("build settings page")
+        logger.info("build settings page")
         return settings
 
-    def change_theme(self,color):
+    def change_theme(self, color):
         global config
         # self.page.theme.color_scheme_seed=color
         self.page.theme = Theme(font_family='opposans',use_material3=True, color_scheme_seed=color)
         self.page.update()
 
-        config['theme']=color
+        config['theme'] = color
         with open('config.yml', "w", encoding="utf-8") as f:
-            yaml.dump(config, f,allow_unicode=True)
-        logging.info("change theme to %s" % color)
-        
+            yaml.dump(config, f, allow_unicode=True)
+        logger.info("change theme to %s" % color)
+
+    # Debug设置
+    def change_debug_mode(self, e):
+        global config
+        config['debug'] = True if e.data == 'true' else False
+        with open('config.yml', "w", encoding="utf-8") as f:
+            yaml.dump(config, f, allow_unicode=True)
+        logger.info("change debug mode to %s" % e.data)
 
     # 通过名字搜索歌曲
+
     def search_song(self, e):
-        logging.info("search song")
-        headers = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49'}
+        logger.info("search song")
+        headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49'}
         url = 'https://songsearch.kugou.com/song_search_v2?callback=jQuery11240770641348037286_1566198223730&keyword={}&page=1&pagesize=50&clientver=&platform=WebFilter&tag=em&filter=2&iscorrection=1'.format(self.search.value)
         page = requests.get(url=url, headers=headers).text
         self.song_json = eval(page[41:-2])
-        logging.debug(self.song_json)
+        logger.debug(self.song_json)
         self.songs.controls = []
         # 提取歌曲有关信息
         for song in self.song_json['data']['lists']:
-            file_name = song['FileName'].replace(
-                '<em>', '').replace('</em>', '').replace('<\\/em>', '')
+            file_name = song['FileName'].replace('<em>', '').replace('</em>', '').replace('<\\/em>', '')
             file_hash = song['FileHash']
-            AlbumName = song['AlbumName'].replace(
-                '<em>', '').replace('</em>', '').replace('<\\/em>', '')
-            song_name = song['SongName'].replace(
-                '<em>', '').replace('</em>', '').replace('<\\/em>', '')
-            singer = song['SingerName'].replace(
-                '<em>', '').replace('</em>', '').replace('<\\/em>', '')
+            AlbumName = song['AlbumName'].replace('<em>', '').replace('</em>', '').replace('<\\/em>', '')
+            song_name = song['SongName'].replace('<em>', '').replace('</em>', '').replace('<\\/em>', '')
+            singer = song['SingerName'].replace('<em>', '').replace('</em>', '').replace('<\\/em>', '')
             album = song['AlbumID']
 
-            song = Song(file_name, song_name, file_hash, AlbumName, singer,album)
+            song = Song(file_name, song_name, file_hash, AlbumName, singer, album)
             self.songs.controls.append(song)
         self.update()
-    
-    def change_play_state(self,*e):
+
+    def change_play_state(self, *e):
         self.play_state = not self.play_state
         self.play_button.icon = icons.PAUSE_ROUNDED if self.play_state else icons.PLAY_ARROW_ROUNDED
         mixer.music.unpause() if self.play_state else mixer.music.pause()
-        logging.info("change play state to %s" % self.play_state)
+        logger.info("change play state to %s" % self.play_state)
         self.update()
-    
+
 
 # 每首歌作为一个类
 class Song(UserControl):
@@ -216,7 +238,7 @@ class Song(UserControl):
     # 渲染控件
     def build(self):
         # self.display_name = Text(value=self.name, expand=1)
-        logging.info("build song"+self.filename)
+        logger.info("build song"+self.filename)
         self.download_state = IconButton(
             icon=icons.DOWNLOAD_ROUNDED,
             tooltip="Download this song",
@@ -231,8 +253,7 @@ class Song(UserControl):
                         ListTile(
                             leading=Icon(icons.MUSIC_NOTE_ROUNDED),
                             title=Text(self.name),
-                            subtitle=Text('Singer:{}      Album:{}'.format(
-                                self.singer, self.album)),
+                            subtitle=Text('Singer:{}      Album:{}'.format(self.singer, self.album)),
                         ),
                         Row([
                             IconButton(
@@ -252,47 +273,46 @@ class Song(UserControl):
 
     # 下载音乐
     def download(self, *e):
-        headers = {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49'}
+        headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49'}
         cookies1 = 'kg_mid=f82cfe86ec1c5fc11436ebd5e6bb5dad; kg_dfid=4XTEXw318YJm49LxBP1Lad3C; kg_dfid_collect=d41d8cd98f00b204e9800998ecf8427e; kg_mid_temp=f82cfe86ec1c5fc11436ebd5e6bb5dad'
         cookies_list = cookies1.replace(' ', '').split(';')
-        cookies={}
+        cookies = {}
         for str1 in cookies_list:
             key, values = str1.split('=', 1)
             cookies[key] = values
-        
+
         # 获取歌曲地址
-        hash_url = 'https://wwwapi.kugou.com/yy/index.php?r=play/getdata&callback=jQuery19107707606997391536_1606614033664&hash={}&album_id={}'.format(
-            self.hash,str(self.albumID))
+        hash_url = 'https://wwwapi.kugou.com/yy/index.php?r=play/getdata&callback=jQuery19107707606997391536_1606614033664&hash={}&album_id={}'.format(self.hash, str(self.albumID))
         self.song_json = json.loads(requests.get(
-            url=hash_url, headers=headers,cookies=cookies).text[41:-2])
+            url=hash_url, headers=headers, cookies=cookies).text[41:-2])
         if self.song_json['status'] == 0:
             # os.system("start https://www.kugou.com/song/")
-            logging.error("download error")
+            logger.error("download error")
             self.err()
         song_url = self.song_json['data']['play_url'].replace('\\', '')
         song_free = self.song_json['data']['is_free_part']
         img_url = self.song_json['data']['img']
-        logging.debug(self.song_json)
-        logging.info("download song"+self.filename)
+        logger.debug(self.song_json)
+        logger.info("download song"+self.filename)
         # 下载歌曲
         if song_url == '':  # 检测歌曲是否能下载
-            logging.warning('song url is empty')
-            self.err('下载失败','该歌曲无版权或者需要付费')
+            logger.warning('song url is empty')
+            self.err('下载失败', '该歌曲无版权或者需要付费')
         else:
             try:  # 检测是否存在已下载文件
                 if song_free == 1:  # 试听歌曲检测
                     notice = '⚠歌曲为试听版，请核实'
-                    self.err('提示',notice)
-                    logging.warning('song is trial')
+                    self.err('提示', notice)
+                    logger.warning('song is trial')
                 with open('音乐/' + self.filename + '.mp3', 'xb') as f:  # 检测歌曲是否已经存在，不存在则写入歌曲
-                    song = requests.get(url=song_url, headers=headers,cookies=cookies)
+                    song = requests.get(
+                        url=song_url, headers=headers, cookies=cookies)
                     f.write(song.content)
                 self.get_lyrics()
-                self.download_state.icon=icons.DOWNLOAD_DONE_ROUNDED
+                self.download_state.icon = icons.DOWNLOAD_DONE_ROUNDED
                 self.update()
                 # try:  # 写入歌曲信息ID3 v2.3
-                logging.info("write id3")
+                logger.info("write id3")
                 mp3file = '音乐/' + self.filename + '.mp3'
                 audio = eyed3.load(mp3file)
                 old_image = None
@@ -314,27 +334,27 @@ class Song(UserControl):
 
                 audio.tag.save(version=(2, 3, 0))
                 # except:
-                #     logging.warning('Fail to write song cover')
+                #     logger.warning('Fail to write song cover')
                 #     self.err('提示',"歌曲封面写入失败")
 
             except FileExistsError:  # 歌曲已存在
-                self.err('下载失败','歌曲已存在')
-                logging.warning('song {} is exist'.format(self.filename))
-                self.download_state.icon=icons.DOWNLOAD_DONE_ROUNDED
+                self.err('下载失败', '歌曲已存在')
+                logger.warning('song {} is exist'.format(self.filename))
+                self.download_state.icon = icons.DOWNLOAD_DONE_ROUNDED
                 self.update()
 
-    def get_lyrics(self): # 获取歌词
-        self.lyrics=self.song_json['data']['lyrics']
+    def get_lyrics(self):  # 获取歌词
+        self.lyrics = self.song_json['data']['lyrics']
         if str(self.lyrics).find('纯音乐，请欣赏') != -1:
-            logging.warning('song is pure music')
-            self.err('提示','✔已检测到纯音乐，不需要歌词')
+            logger.warning('song is pure music')
+            self.err('提示', '✔已检测到纯音乐，不需要歌词')
         elif self.lyrics == '':
-            logging.warning('song has no lyrics')
-            self.err('提示','❌此歌曲无歌词')
+            logger.warning('song has no lyrics')
+            self.err('提示', '❌此歌曲无歌词')
         else:
             with open('音乐/' + self.song_json['data']['audio_name'] + '.lrc', 'w', encoding='utf-8') as f:
                 f.write(self.lyrics.replace('\ufeff', '').replace('\r', ''))
-            logging.info('Download lyrics success')
+            logger.info('Download lyrics success')
 
     # 调用ffplay先下载再播放
     def play(self, e):
@@ -350,7 +370,7 @@ class Song(UserControl):
         error_msg = AlertDialog(
             title=Text(title),
             content=Text(content),
-            actions=[TextButton("OK",on_click=self.close_dia)],
+            actions=[TextButton("OK", on_click=self.close_dia)],
             actions_alignment="end",
         )
         error_msg.open = True
@@ -358,25 +378,27 @@ class Song(UserControl):
         self.update()
 
     # 关闭报错
-    def close_dia(self,e):
+    def close_dia(self, e):
         # 隐藏最新弹窗
-        self.controls[-1].open=False
+        self.controls[-1].open = False
         self.update()
         # 删除弹窗
         self.controls.pop()
 
 
+
+
 # 主程序
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
 def main(page: Page):
     page.title = "HT's Music Downloader"
     # page.horizontal_alignment = "center"
     # page.vertical_alignment = "center"
     # page.scroll = "adaptive"
-    page.fonts = {"opposans": "/OPPOSans-M.ttf",}
+    page.fonts = {"opposans": "/OPPOSans-M.ttf", }
     global config
-    color=config['theme']
-    page.theme = Theme(font_family='opposans',use_material3=True, color_scheme_seed=color)
+    color = config['theme']
+    page.theme = Theme(font_family='opposans',
+                       use_material3=True, color_scheme_seed=color)
     page.window_width = 1200
     page.window_height = 720
     page.update()
@@ -386,26 +408,41 @@ def main(page: Page):
 
     # add application's root control to the page
     page.add(app)
-    
+
+
+# start the application
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
+#                     datefmt='%Y-%m-%d %H:%M:%S', filename='log.log', filemode="w")
+logger = logging.getLogger()
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
+handler = logging.FileHandler("log.log", mode="w")
+handler.setFormatter(formatter)
+console = logging.StreamHandler()
+console.setFormatter(formatter)
+
+logger.setLevel(logging.WARNING)
+# logger.setLevel(logging.DEBUG)
+logger.addHandler(handler)
+logger.addHandler(console)
+
 try:  # 检测音乐文件夹，没有则新建
-    path=Path('音乐')
+    path = Path('音乐')
     path.mkdir()
 except:
-    logging.warning('Music Directory Exists')
-# try:
-#     os.mkdir('数据')
-# except:
-#     print('检测到数据文件夹已存在')
+    logger.warning('Music Directory Exists')
 
-logging.info('Initializing config...')
+logger.info('Initializing config...')
 config_file = Path('config.yml')
 config_file.touch(exist_ok=True)
-with open('config.yml',encoding='utf-8') as f:
+with open('config.yml', encoding='utf-8') as f:
     config = yaml.load(f.read(), Loader=yaml.FullLoader)
-    if config==None:
-        config={}
+    if config == None:
+        config = {}
     if 'theme' not in config:
-        config['theme']='blue'
-
+        config['theme'] = 'blue'
+    if 'debug' not in config:
+        config['debug'] = False
+if config['debug']:
+    logger.setLevel(logging.INFO)
 mixer.init()
-flet.app(target=main,port=4000,assets_dir="assets")
+flet.app(target=main, port=4000, assets_dir="assets")
