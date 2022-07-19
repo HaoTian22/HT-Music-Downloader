@@ -2,8 +2,7 @@ import flet
 import json
 import logging
 import yaml
-from mutagen.id3 import ID3, APIC
-from mutagen.mp3 import MP3
+import eyed3
 from pathlib import Path
 import requests
 from pygame import mixer
@@ -34,7 +33,6 @@ from flet import (
     Container,
     ListTile
 )
-# from download import *
 
 # App作为一个类
 class App(UserControl):
@@ -90,7 +88,7 @@ class App(UserControl):
     def build_main_page(self): # 主页面
         self.search = TextField(
             hint_text="Search from KuGou", expand=True,on_submit=self.search_song)
-        self.songs = Column(scroll="auto",width=600,height=600)
+        self.songs = Column(scroll="auto",width=1000,height=600,horizontal_alignment="center")
         page = Stack([
             Column(
                 width=1000,
@@ -103,14 +101,15 @@ class App(UserControl):
                                 icon=icons.SEARCH, on_click=self.search_song),
                         ],
                     ),
-                    Container(self.songs,padding=padding.symmetric(horizontal=200)),
+                    # Container(self.songs,padding=padding.symmetric(horizontal=200)),
+                    Row(controls=[self.songs]),
                 ]
             ),
             FloatingActionButton(
                 icon=icons.STOP_ROUNDED, 
                 on_click=self.stop_song,
-                right=0,
-                bottom=0
+                right=10,
+                bottom=5
             )
         ])
         # self.main_page=page
@@ -220,6 +219,7 @@ class Song(UserControl):
         self.display_view = Card(
             content=Container(
                 padding=10,
+                width=600,
                 content=Column(
                     [
                         ListTile(
@@ -282,28 +282,31 @@ class Song(UserControl):
                     f.write(song.content)
                 self.get_lyrics()
                 self.download_state.icon=icons.DOWNLOAD_DONE_ROUNDED
-                try:  # 写入歌曲封面
-                    mp3file = '音乐/' + self.filename + '.mp3'
-                    songFile = MP3(mp3file, ID3=ID3)
-                    try:  # 给没有ID3 tag的歌曲加入tag
-                        songFile.add_tags()
-                    except:
-                        pass
-                    picData = requests.get(
-                        url=img_url, headers=self.headers).content
-                    songFile.tags.add(
-                        APIC(  # 插入封面
-                            encoding=3,
-                            mime='image/jpeg',
-                            type=3,
-                            desc=u'Cover',
-                            data=picData
-                        )
-                    )
-                    songFile.save()
-                except:
-                    logging.warning('Fail to write song cover')
-                    self.err('提示',"歌曲封面写入失败")
+                # try:  # 写入歌曲信息ID3 v2.3
+                logging.info("write id3")
+                mp3file = '音乐/' + self.filename + '.mp3'
+                audio = eyed3.load(mp3file)
+                old_image = None
+                if audio.tag.images._fs[b'APIC']:
+                    desc = audio.tag.images._fs[b'APIC'][0].description
+                    old_image = audio.tag.images.get(desc)
+                # audio.initTag(version=(2, 3, 0))
+                if audio.tag.artist is None:
+                    audio.tag.artist = self.singer
+                if audio.tag.album is None:
+                    audio.tag.album = self.album
+                if audio.tag.title is None:
+                    audio.tag.title = self.name
+                if old_image is None:
+                    audio.tag.images.set(3, requests.get(
+                        url=img_url, headers=headers, cookies=cookies).content, 'image/jpeg', u'Cover')
+                if len(audio.tag.lyrics) == 0:
+                    audio.tag.lyrics.set(self.lyrics)
+
+                audio.tag.save(version=(2, 3, 0))
+                # except:
+                #     logging.warning('Fail to write song cover')
+                #     self.err('提示',"歌曲封面写入失败")
 
             except:  # 歌曲存在的替换
                 self.err('下载失败','歌曲已存在')
@@ -355,12 +358,15 @@ class Song(UserControl):
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
 def main(page: Page):
     page.title = "HT's Music Downloader"
-    page.horizontal_alignment = "center"
+    # page.horizontal_alignment = "center"
+    # page.vertical_alignment = "center"
     # page.scroll = "adaptive"
     page.fonts = {"opposans": "/OPPOSans-M.ttf",}
     global config
     color=config['theme']
     page.theme = Theme(font_family='opposans',use_material3=True, color_scheme_seed=color)
+    page.window_width = 1200
+    page.window_height = 720
     page.update()
 
     # create application instance

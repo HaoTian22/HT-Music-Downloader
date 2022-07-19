@@ -158,7 +158,8 @@ jobs:
      - if: github.event_name=='workflow_dispatch'
        run: echo 'version = &{{inputs.version}}' >> $GITHUB_ENV
 
-
+     - run: echo ${{env.version}}
+       
      - name: Release
        uses: marvinpinto/action-automatic-releases@v1.2.1
        if: ${{ env.version }}
