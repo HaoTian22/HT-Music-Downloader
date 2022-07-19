@@ -1,10 +1,15 @@
 # This is a basic workflow to help you get started with Actions
 
+<<<<<<< HEAD
 name: Auto-Release
+=======
+name: CI
+>>>>>>> master
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "master" branch
+<<<<<<< HEAD
   schedule:
   - cron: 0 0 1 * *
   # Allows you to run this workflow manually from the Actions tab
@@ -23,6 +28,19 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build-Windows:
+=======
+  push:
+    branches: [ "flet-v4" ]
+  pull_request:
+    branches: [ "master" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+>>>>>>> master
     # The type of runner that the job will run on
     runs-on: windows-latest
 
@@ -33,9 +51,12 @@ jobs:
       
       - name: Setup Python
         uses: actions/setup-python@v4.1.0
+<<<<<<< HEAD
         with:
           # Version range or exact version of Python to use, using SemVer's version range syntax. Reads from .python-version if unset.
           python-version: '3.10'
+=======
+>>>>>>> master
 
       # Runs a single command using the runners shell
       - name: Install pip
@@ -44,6 +65,7 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Pyinstaller
         run: |
+<<<<<<< HEAD
           pyinstaller init.py -i icon.ico --onefile --noconsole --add-data "assets;assets"
           ren ./dist/init.exe "HT-Music-Downloader-Windows.exe"
 
@@ -169,3 +191,13 @@ jobs:
         # Assets to upload to the release
         files: |
           *.zip
+=======
+          pyinstaller -F init.py -i icon.ico --add-data "assets;assets"
+      - name: Add & Commit
+        # You may pin to the exact commit or the version.
+        # uses: EndBug/add-and-commit@998652d28d7702d095d40f52ae42982a80ae8c7d
+        uses: EndBug/add-and-commit@v9.0.1
+        with:
+          add: ./dist
+          message: 自动打包
+>>>>>>> master
