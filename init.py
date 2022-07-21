@@ -191,11 +191,16 @@ class App(UserControl):
             yaml.dump(config, f, allow_unicode=True)
         logger.info("change debug mode to %s" % e.data)
 
+    # 搜索提示
+    #https://searchtip.kugou.com/getSearchTip?MusicTipCount=5&MVTipCount=2&albumcount=2&keyword=%E7%A7%9F%E5%80%9F&callback=jQuery18007379282271372645_1658366341663&_=1658366469399
+    
     # 通过名字搜索歌曲
 
     def search_song(self, e):
         logger.info("search song")
         headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.49'}
+        # url 2022.7.21
+        #url = 'https://complexsearch.kugou.com/v2/search/song?callback=callback123&keyword={}&page=1&pagesize=60&bitrate=0&isfuzzy=0&inputtype=0&platform=WebFilter&userid=0&clientver=2000&iscorrection=1&privilege_filter=0&filter=10&token=&srcappid=2919&clienttime=1658366619923&mid=1658366619923&uuid=1658366619923&dfid=-&signature=A270FC88BF651F67B720A0AA35988CA4'.format(self.search.value)
         url = 'https://songsearch.kugou.com/song_search_v2?callback=jQuery11240770641348037286_1566198223730&keyword={}&page=1&pagesize=50&clientver=&platform=WebFilter&tag=em&filter=2&iscorrection=1'.format(self.search.value)
         page = requests.get(url=url, headers=headers).text
         self.song_json = eval(page[41:-2])
@@ -209,8 +214,8 @@ class App(UserControl):
             song_name = song['SongName'].replace('<em>', '').replace('</em>', '').replace('<\\/em>', '')
             singer = song['SingerName'].replace('<em>', '').replace('</em>', '').replace('<\\/em>', '')
             album = song['AlbumID']
-
-            song = Song(file_name, song_name, file_hash, AlbumName, singer, album)
+            Auxiliary = song['Auxiliary'].replace('<em>', '').replace('</em>', '').replace('<\\/em>', '')
+            song = Song(file_name, song_name, file_hash, AlbumName, singer, album, Auxiliary)
             self.songs.controls.append(song)
         self.update()
 
@@ -224,7 +229,7 @@ class App(UserControl):
 
 # 每首歌作为一个类
 class Song(UserControl):
-    def __init__(self, filename, name, hash, AlbumName, singer, AlbumID):
+    def __init__(self, filename, name, hash, AlbumName, singer, AlbumID, Auxiliary):
         super().__init__()
         self.filename = filename
         self.name = name
@@ -232,6 +237,7 @@ class Song(UserControl):
         self.album = AlbumName
         self.singer = singer
         self.albumID = AlbumID
+        self.Auxiliary = Auxiliary
 
     # 渲染控件
     def build(self):
@@ -242,6 +248,10 @@ class Song(UserControl):
             tooltip="Download this song",
             on_click=self.download
         )
+        Auxiliary = '\nAuxiliary: '+self.Auxiliary if self.Auxiliary != '' else ''
+        singer = 'Singer: '+self.singer+'    ' if len(self.singer)<=12 and len(self.album) <= 12 else 'Singer: '+self.singer+'\n'
+        album = 'Album: '+self.album if self.album != '' else ''
+        basicinfo = singer+album+Auxiliary
         self.display_view = Card(
             content=Container(
                 padding=10,
@@ -251,7 +261,7 @@ class Song(UserControl):
                         ListTile(
                             leading=Icon(icons.MUSIC_NOTE_ROUNDED),
                             title=Text(self.name),
-                            subtitle=Text('Singer:{}      Album:{}'.format(self.singer, self.album)),
+                            subtitle=Text(basicinfo),
                         ),
                         Row([
                             IconButton(
@@ -345,10 +355,10 @@ class Song(UserControl):
         self.lyrics = self.song_json['data']['lyrics']
         if str(self.lyrics).find('纯音乐，请欣赏') != -1:
             logger.warning('song is pure music')
-            self.err('提示', '✔已检测到纯音乐，不需要歌词')
+            self.err('提示', '已检测到纯音乐，不需要歌词')
         elif self.lyrics == '':
             logger.warning('song has no lyrics')
-            self.err('提示', '❌此歌曲无歌词')
+            self.err('提示', '此歌曲无歌词')
         else:
             with open('音乐/' + self.song_json['data']['audio_name'] + '.lrc', 'w', encoding='utf-8') as f:
                 f.write(self.lyrics.replace('\ufeff', '').replace('\r', ''))
