@@ -23,12 +23,15 @@
 
 ---
 
-⚠️由于技术原因，exe程序可能需要花一分钟才能打开（pyinstaller打包的程序都这样）  
+## 注意事项
+
+- 由于技术原因，exe程序可能需要花较久时间打开（pyinstaller打包的程序都这样）  
+- 音乐下载无进度说明，网络卡顿时不会有提示，请自行判断
 
 ## 屏幕截图
 
-![image](https://user-images.githubusercontent.com/48882584/179815905-cc01f7b7-f98b-445e-9761-4063d41beb6c.png)
-![uTools_1658079869876](https://user-images.githubusercontent.com/48882584/179419925-326f0f47-6aa7-43d1-9c72-1eac80cac2ad.png)
+![image](https://user-images.githubusercontent.com/48882584/180126365-dd758718-0ef1-4ff8-b4b5-1c521382eacc.png)
+![image](https://user-images.githubusercontent.com/48882584/180126578-412ba782-e112-4b1c-a57b-b0bddbe08237.png)
 ![image](https://user-images.githubusercontent.com/48882584/179815776-95e87e15-a4ff-44b0-b2c0-9233c8f3ab5e.png)
 
 ## 杂项
