@@ -75,7 +75,7 @@ class App(UserControl):
 
     def change_page(self, *e):  # 切换页面
         if self.side_rail.selected_index == 0:
-            logger.info("change page to main page")
+            logger.info("Change page to main page")
             self.current_page = self.main_page
         elif self.side_rail.selected_index == 1:
             logger.info("change page to local page")
@@ -118,12 +118,12 @@ class App(UserControl):
             self.play_button,
         ])
         # self.main_page=page
-        logger.info("build main page")
+        logger.info("Build main page")
         return page
 
     def build_local_page(self):  # 本地音乐页面
-        logger.info("build local page")
-        return Text("Local Music Page\n Under Construction")
+        logger.info("Build local page")
+        return Text("Here is Local Music Page\nUnder Construction")
 
     def build_settings_page(self):  # 设置页面
         theme_setting = Card(
@@ -152,8 +152,8 @@ class App(UserControl):
                 # height=200,
                 content=Row([
                     Icon(icons.BUG_REPORT_ROUNDED),
-                    Text("Debug-Mode", expand=True),
-                    VerticalDivider(width=750),
+                    Text("Debug-Mode (Need restart)", expand=True),
+                    VerticalDivider(width=650),
                     Switch(on_change=self.change_debug_mode, value=config['debug'])
                 ])
             )
@@ -169,7 +169,7 @@ class App(UserControl):
                 debug_setting,
             ]
         )
-        logger.info("build settings page")
+        logger.info("Build settings page")
         return settings
 
     def change_theme(self, color):
@@ -181,7 +181,7 @@ class App(UserControl):
         config['theme'] = color
         with open('config.yml', "w", encoding="utf-8") as f:
             yaml.dump(config, f, allow_unicode=True)
-        logger.info("change theme to %s" % color)
+        logger.info("Change theme to %s" % color)
 
     # Debug设置
     def change_debug_mode(self, e):
@@ -189,7 +189,7 @@ class App(UserControl):
         config['debug'] = True if e.data == 'true' else False
         with open('config.yml', "w", encoding="utf-8") as f:
             yaml.dump(config, f, allow_unicode=True)
-        logger.info("change debug mode to %s" % e.data)
+        logger.info("Change debug mode to %s" % e.data)
 
     # 搜索提示
     #https://searchtip.kugou.com/getSearchTip?MusicTipCount=5&MVTipCount=2&albumcount=2&keyword=%E7%A7%9F%E5%80%9F&callback=jQuery18007379282271372645_1658366341663&_=1658366469399
@@ -202,7 +202,7 @@ class App(UserControl):
         # url 2022.7.21
         #url = 'https://complexsearch.kugou.com/v2/search/song?callback=callback123&keyword={}&page=1&pagesize=60&bitrate=0&isfuzzy=0&inputtype=0&platform=WebFilter&userid=0&clientver=2000&iscorrection=1&privilege_filter=0&filter=10&token=&srcappid=2919&clienttime=1658366619923&mid=1658366619923&uuid=1658366619923&dfid=-&signature=A270FC88BF651F67B720A0AA35988CA4'.format(self.search.value)
         url = 'https://songsearch.kugou.com/song_search_v2?callback=jQuery11240770641348037286_1566198223730&keyword={}&page=1&pagesize=50&clientver=&platform=WebFilter&tag=em&filter=2&iscorrection=1'.format(self.search.value)
-        page = requests.get(url=url, headers=headers).text
+        page = requests.get(url=url, headers=headers, timeout=(2,10)).text
         self.song_json = eval(page[41:-2])
         logger.debug(self.song_json)
         self.songs.controls = []
@@ -223,7 +223,7 @@ class App(UserControl):
         self.play_state = not self.play_state
         self.play_button.icon = icons.PAUSE_ROUNDED if self.play_state else icons.PLAY_ARROW_ROUNDED
         mixer.music.unpause() if self.play_state else mixer.music.pause()
-        logger.info("change play state to %s" % self.play_state)
+        logger.info("Change play state to %s" % self.play_state)
         self.update()
 
 
@@ -242,7 +242,7 @@ class Song(UserControl):
     # 渲染控件
     def build(self):
         # self.display_name = Text(value=self.name, expand=1)
-        logger.info("build song"+self.filename)
+        logger.info("Building song: "+self.filename)
         self.download_state = IconButton(
             icon=icons.DOWNLOAD_ROUNDED,
             tooltip="Download this song",
@@ -292,35 +292,35 @@ class Song(UserControl):
         # 获取歌曲地址
         hash_url = 'https://wwwapi.kugou.com/yy/index.php?r=play/getdata&callback=jQuery19107707606997391536_1606614033664&hash={}&album_id={}'.format(self.hash, str(self.albumID))
         self.song_json = json.loads(requests.get(
-            url=hash_url, headers=headers, cookies=cookies).text[41:-2])
+            url=hash_url, headers=headers, cookies=cookies, timeout=(2, 10)).text[41:-2])
         if self.song_json['status'] == 0:
             # os.system("start https://www.kugou.com/song/")
-            logger.error("download error")
+            logger.exception("Download error")
             self.err()
         song_url = self.song_json['data']['play_url'].replace('\\', '')
         song_free = self.song_json['data']['is_free_part']
         img_url = self.song_json['data']['img']
         logger.debug(self.song_json)
-        logger.info("download song"+self.filename)
+        logger.info("Downloading song: "+self.filename)
         # 下载歌曲
         if song_url == '':  # 检测歌曲是否能下载
-            logger.warning('song url is empty')
+            # logger.warning('song url is empty')
             self.err('下载失败', '该歌曲无版权或者需要付费')
         else:
             try:  # 检测是否存在已下载文件
                 if song_free == 1:  # 试听歌曲检测
                     notice = '⚠歌曲为试听版，请核实'
                     self.err('提示', notice)
-                    logger.warning('song is trial')
+                    # logger.warning('Song is trial version')
                 with open('音乐/' + self.filename + '.mp3', 'xb') as f:  # 检测歌曲是否已经存在，不存在则写入歌曲
                     song = requests.get(
-                        url=song_url, headers=headers, cookies=cookies)
+                        url=song_url, headers=headers, cookies=cookies, timeout=(2,20))
                     f.write(song.content)
                 self.get_lyrics()
                 self.download_state.icon = icons.DOWNLOAD_DONE_ROUNDED
                 self.update()
                 # try:  # 写入歌曲信息ID3 v2.3
-                logger.info("write id3")
+                logger.info("Write id3")
                 mp3file = '音乐/' + self.filename + '.mp3'
                 audio = eyed3.load(mp3file)
                 old_image = None
@@ -347,8 +347,14 @@ class Song(UserControl):
 
             except FileExistsError:  # 歌曲已存在
                 self.err('下载失败', '歌曲已存在')
-                logger.warning('song {} is exist'.format(self.filename))
+                # logger.warning('Song {} is exist'.format(self.filename))
                 self.download_state.icon = icons.DOWNLOAD_DONE_ROUNDED
+                self.update()
+            except requests.ConnectTimeout or requests.ReadTimeout:
+                self.err('下载失败', '网络超时,请稍后再试')
+                # logger.warning('Network timeout')
+                audio = Path('音乐/' + self.filename + '.mp3')
+                audio.unlink()
                 self.update()
 
     def get_lyrics(self):  # 获取歌词
@@ -362,7 +368,7 @@ class Song(UserControl):
         else:
             with open('音乐/' + self.song_json['data']['audio_name'] + '.lrc', 'w', encoding='utf-8') as f:
                 f.write(self.lyrics.replace('\ufeff', '').replace('\r', ''))
-            logger.info('Download lyrics success')
+            logger.info('Get lyrics success')
 
     # 调用ffplay先下载再播放
     def play(self, e):
@@ -384,6 +390,7 @@ class Song(UserControl):
         error_msg.open = True
         self.controls.append(error_msg)
         self.update()
+        logger.exception(content)
 
     # 关闭报错
     def close_dia(self, e):
@@ -433,11 +440,12 @@ logger.setLevel(logging.WARNING)
 logger.addHandler(handler)
 logger.addHandler(console)
 
-try:  # 检测音乐文件夹，没有则新建
-    path = Path('音乐')
+# 检测音乐文件夹，没有则新建
+path = Path('音乐')
+if not path.exists():
     path.mkdir()
-except:
-    logger.warning('Music Directory Exists')
+    logger.info('Making Music Directory')
+
 
 logger.info('Initializing config...')
 config_file = Path('config.yml')
