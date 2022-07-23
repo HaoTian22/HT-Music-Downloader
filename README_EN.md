@@ -1,6 +1,6 @@
 # HT's Music Downloader v4
 
-🎶A simple Material Design 3 music downloader
+🎶A simple Material Design 3 music downloader  
 🌏English | [中文](https://github.com/HaoTian22/HT-Music-Downloader/blob/master/README.md)
 
 ## Features
@@ -9,17 +9,17 @@
 
 ---
 
-✅Search for music
-✅Write song info, lyrics, cover in the file
-✅Win/Mac/Linux support(Not tested)
-✅Customized themes
+✅Search for music  
+✅Write song info, lyrics, cover in the file  
+✅Win/Mac/Linux support(Not tested)  
+✅Customized themes  
 ☑️Get songs from Music Streaming platforms online(Now only support KuGou)__
-☑️Play music(Only pause and play)
-🕑Playlist import
-🕑Local music
-🕑Multiple choice
-🕑Show lyrics when playying
-❌Songs banned from downloading by the music company
+☑️Play music(Only pause and play)  
+🕑Playlist import  
+🕑Local music  
+🕑Multiple choice  
+🕑Show lyrics during playback  
+❌Songs banned from downloading by the music company  
 
 ## Notices
 
@@ -35,5 +35,5 @@
 
 [Apache License](https://github.com/HT-Music/HT-Music-Downloader/blob/master/LICENSE)
 
-Power By:
+Power By:  
 [Python](https://python.org) | [Flutter](https://flutter.dev) | [Flet](https://flet.dev)
