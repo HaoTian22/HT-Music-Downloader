@@ -13,7 +13,7 @@
 ✅Write song info, lyrics, cover in the file  
 ✅Win/Mac/Linux support(Not tested)  
 ✅Customized themes  
-☑️Get songs from Music Streaming platforms online(Now only support KuGou)__
+☑️Get songs from Music Streaming platforms online(Now only support KuGou)  
 ☑️Play music(Only pause and play)  
 🕑Playlist import  
 🕑Local music  

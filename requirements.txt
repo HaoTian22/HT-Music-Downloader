@@ -1,4 +1,4 @@
-flet==0.1.41
+flet==0.1.42
 pygame==2.1.2
 pyinstaller==5.2
 requests==2.28.1

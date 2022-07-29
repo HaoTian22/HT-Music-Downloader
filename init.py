@@ -12,8 +12,11 @@ from flet import (
     FloatingActionButton,
     NavigationRail,
     Switch,
+    AppBar,
+    ElevatedButton,
     NavigationRailDestination,
     Divider,
+    View,
     VerticalDivider,
     IconButton,
     TextButton,
@@ -37,9 +40,10 @@ from flet import (
 # App作为一个类
 
 
-class App(UserControl):
+class App(View):
     # 初始化控件
-    def build(self):
+    def __init__(self):
+        #super().__init__()
         self.side_rail = NavigationRail(selected_index=0)
         self.side_rail = NavigationRail(
             selected_index=0,
@@ -71,20 +75,27 @@ class App(UserControl):
         self.local_page = self.build_local_page()
         self.settings_page = self.build_settings_page()
         self.current_page = self.main_page
-        return Row(controls=[self.side_rail, VerticalDivider(width=1), self.current_page], height=650, expand=True)
+        super().__init__('/', self.main_page)
+        #self.page.views.append(self.main_page)
+
+
 
     def change_page(self, *e):  # 切换页面
+        self.page.views.clear()
         if self.side_rail.selected_index == 0:
             logger.info("Change page to main page")
-            self.current_page = self.main_page
+            # self.current_page = self.main_page
+            self.page.go('/')
         elif self.side_rail.selected_index == 1:
             logger.info("change page to local page")
-            self.current_page = self.local_page
+            # self.current_page = self.local_page
+            self.page.go('/local')
         elif self.side_rail.selected_index == 2:
             logger.info("change page to settings page")
-            self.current_page = self.settings_page
-        self.controls = [Row(controls=[self.side_rail, VerticalDivider(
-            width=1), self.current_page], height=650, expand=True)]
+            # self.current_page = self.settings_page
+            self.page.go('/settings')
+        # self.controls = [Row(controls=[self.side_rail, VerticalDivider(
+        #     width=1), self.current_page], height=650, expand=True)]
     # 更新控件
         self.update()
 
@@ -119,7 +130,7 @@ class App(UserControl):
         ])
         # self.main_page=page
         logger.info("Build main page")
-        return page
+        return [Row(controls=[self.side_rail, VerticalDivider(width=1), page], height=650, expand=True)]
 
     def build_local_page(self):  # 本地音乐页面
         logger.info("Build local page")
@@ -170,7 +181,7 @@ class App(UserControl):
             ]
         )
         logger.info("Build settings page")
-        return settings
+        return View('/settings',[Row(controls=[self.side_rail, VerticalDivider(width=1), settings], height=650, expand=True)])
 
     def change_theme(self, color):
         global config
@@ -423,7 +434,10 @@ def main(page: Page):
     app = App()
 
     # add application's root control to the page
-    page.add(app)
+    #page.add(app)
+    page.views.append(app)
+    page.update()
+    # page.on_route_change=app.change_page
 
 
 # start the application
