@@ -323,11 +323,12 @@ class Song(UserControl):
                 logger.info("Write id3")
                 mp3file = '音乐/' + self.filename + '.mp3'
                 audio = eyed3.load(mp3file)
+                if audio.tag == None:
+                    audio.initTag(version=(2, 3, 0)) 
                 old_image = None
                 if audio.tag.images._fs[b'APIC']:
                     desc = audio.tag.images._fs[b'APIC'][0].description
                     old_image = audio.tag.images.get(desc)
-                # audio.initTag(version=(2, 3, 0))
                 if audio.tag.artist is None:
                     audio.tag.artist = self.singer
                 if audio.tag.album is None:
