@@ -38,3 +38,6 @@
 
 Power By:  
 [Python](https://python.org) | [Flutter](https://flutter.dev) | [Flet](https://flet.dev)
+
+## Todo 
+重构v4→v4.5（使用新版flet+LLM辅助编写，优化代码逻辑，播放功能）
