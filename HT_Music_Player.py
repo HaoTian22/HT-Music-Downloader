@@ -1,6 +1,8 @@
 import flet as ft
 import logging
 import datetime
+# from Netease import *
+import Netease
 
 def format_time(milliseconds):
     seconds, milliseconds = divmod(milliseconds, 1000)
@@ -174,7 +176,7 @@ def main(page: ft.Page):
 
         def build_search_page(self):  # 搜索页面
             self.search = ft.TextField(
-                hint_text="Search from KuGou", expand=True, on_submit=self.search_song)
+                hint_text="Search from Web or Enter URL", expand=True, on_submit=self.search_song,text_align='center')
             self.songs = ft.Column(scroll="auto", width=1020, height=600, horizontal_alignment="center")
             page = ft.Container(content=
                 ft.Column(
@@ -189,7 +191,7 @@ def main(page: ft.Page):
                             ],
                         ),
                         # Container(self.songs,padding=padding.symmetric(horizontal=200)),
-                        # ft.Row(controls=[self.songs]),
+                        ft.Column(controls=[],scroll="auto",height=520,width=1020,horizontal_alignment=ft.CrossAxisAlignment.CENTER),
                     ]
                 ),
             )
@@ -284,14 +286,29 @@ def main(page: ft.Page):
 
         def search_song(self,e):
             # music_player.load_audio("https://github.com/mdn/webaudio-examples/blob/main/audio-analyser/viper.mp3?raw=true")
-            music_player.load_audio(self.search_page.content.controls[0].controls[0].value)
-            logger.info("Search song: "+ self.search_page.content.controls[0].controls[0].value)
+            self.search_value = self.search_page.content.controls[0].controls[0].value
+            if ("http" or ":\\") in self.search.value:
+                music_player.load_audio(self.search.value)
+                logger.info("Play song: "+ self.search.value)
+                return
+            
+            song_objects = Netease.search(self.search_value)
+            for song in song_objects:
+                self.search_page.content.controls[1].controls.append(song.ui)
+                logger.info("Search song: "+ song.name)
+            page.update()
+
+            # logger.info("Search song: "+ self.search_page.content.controls[0].controls[0].value)
             pass
 
         def __init__(self) -> None:
             self.search_page = self.build_search_page()
             self.local_page = self.build_local_page()
             self.settings_page = self.build_settings_page()
+
+    
+
+
 
     app_page = APP_Page()
     main_page = app_page.search_page
