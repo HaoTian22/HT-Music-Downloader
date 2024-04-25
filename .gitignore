@@ -32,6 +32,10 @@ assets/music
 备用/
 *.zip
 config.yml
+*.log
+*.mp3
+*.wav
+*.flac
 
 
 # PyInstaller
