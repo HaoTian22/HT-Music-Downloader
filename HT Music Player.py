@@ -9,7 +9,7 @@ def format_time(milliseconds):
 
 
 def main(page: ft.Page):
-    page.title = "HT's Music Downloader"
+    page.title = "HT's Music Player"
     # page.horizontal_alignment = "center"
     # page.vertical_alignment = "center"
     # page.scroll = "adaptive"
@@ -41,6 +41,7 @@ def main(page: ft.Page):
         page.controls[0].controls[2].controls[0] = main_page
         page.update()
 
+    # 设置
     def change_debug_mode(e):
         page.client_storage.set("debug", e.control.value)
         page.update()
@@ -50,6 +51,11 @@ def main(page: ft.Page):
         page.theme.color_scheme_seed=color
         # page.theme = Theme(font_family='opposans',use_material3=True, color_scheme_seed=color)
         logger.info("Change theme to %s" % color)
+        page.update()
+    
+    def web_provider_change(e):
+        page.client_storage.set('web_provider', e.control.value)
+        logger.info("Change web provider to %s" % e.control.value)
         page.update()
 
     # 基本控件
@@ -79,7 +85,6 @@ def main(page: ft.Page):
             ),
         ],on_change=change_page
     )
-
 
     class Player:
         def show_position(self):
@@ -123,8 +128,6 @@ def main(page: ft.Page):
             logger.info("Play audio")
             page.update()
 
-
-
         def change_playing_status(self):
             if self.duration == None:
                 return
@@ -164,7 +167,6 @@ def main(page: ft.Page):
                 padding=ft.padding.symmetric(vertical=3, horizontal=10),
                 alignment=ft.alignment.center,
             )
-            
 
     music_player = Player()
 
@@ -242,6 +244,30 @@ def main(page: ft.Page):
                 )
             )
 
+            web_provider = ft.Card(
+                content=ft.Container(
+                    padding=10,
+                    content=ft.Row(
+                        [
+                            ft.Icon(ft.icons.WEB),
+                            ft.Text("Web Provider", expand=True),
+                            ft.VerticalDivider(width=350),
+                            ft.Dropdown(
+                                dense=True,
+                                width=200,
+                                bgcolor=ft.colors.ON_INVERSE_SURFACE,
+                                options=[
+                                    ft.dropdown.Option("Netease"),
+                                    ft.dropdown.Option("KuGou"),
+                                    ft.dropdown.Option("QQ"),
+                                ],
+                                on_change=web_provider_change,
+                            ),
+                        ]
+                    ),
+                )
+            )
+
             settings = ft.Column(
                 width=1020,
                 height=600,
@@ -250,11 +276,12 @@ def main(page: ft.Page):
                     ft.Text("Settings"),
                     theme_setting,
                     debug_setting,
+                    web_provider,
                 ]
             )
             logger.info("Build settings page")
             return settings
-        
+
         def search_song(self,e):
             # music_player.load_audio("https://github.com/mdn/webaudio-examples/blob/main/audio-analyser/viper.mp3?raw=true")
             music_player.load_audio(self.search_page.content.controls[0].controls[0].value)
