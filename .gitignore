@@ -26,8 +26,9 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-音乐/
+assets/music
 数据/
+音乐/
 备用/
 *.zip
 config.yml

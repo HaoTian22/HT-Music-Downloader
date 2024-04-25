@@ -1,5 +1,11 @@
 import flet as ft
 import logging
+import datetime
+
+def format_time(milliseconds):
+    seconds, milliseconds = divmod(milliseconds, 1000)
+    minutes, seconds = divmod(seconds, 60)
+    return f"{minutes:02d}:{seconds:02d}"
 
 
 def main(page: ft.Page):
@@ -74,33 +80,100 @@ def main(page: ft.Page):
         ],on_change=change_page
     )
 
-    player = ft.Container(
-        content=ft.Row(
-            controls=[
-                ft.Text("Playing...", width=200),
-                ft.IconButton(ft.icons.PLAY_ARROW_ROUNDED), 
-                ft.IconButton(ft.icons.SKIP_PREVIOUS_ROUNDED),
-                ft.Slider(width=300,secondary_active_color=ft.colors.GREY,secondary_track_value=1),
-            ],
-            height=38,
-            width=1020,
-        ),
-        bgcolor=ft.colors.SURFACE_VARIANT,
-        border_radius=10,
-        padding=ft.padding.symmetric(vertical=3, horizontal=10),
-        alignment=ft.alignment.center,
-    )
 
-    def search_song(e):
-        # 搜索歌曲
-        pass
+    class Player:
+        def show_position(self):
+            if(self.duration == None):
+                return
+            value = self.audio.get_current_position() / self.duration
+            self.player.content.controls[3].value = value
+            # print("Change position to "+str(value))
+            self.player.content.controls[4].value = format_time(self.audio.get_current_position())
+            self.player.content.controls[6].value = format_time(self.duration)
+            # print("Show position "+format_time(self.audio.get_current_position()))
+            page.update()
+
+        def change_position(self, e):
+            timestamp  = int(self.duration * e.control.value)
+            self.audio.seek(timestamp)
+            # print("Change position to "+str(timestamp))
+            page.update()
+
+        def load_audio(self,url):
+            self.audio = ft.Audio(
+            src=url,
+            autoplay=False,
+            volume=1,
+            balance=0,
+            on_loaded=lambda _: self.play_audio(),
+            on_duration_changed=lambda e: print("Duration changed:", e.data),
+            on_position_changed=lambda e: self.show_position(),
+            on_state_changed=lambda e: print("State changed:", e.data),
+            on_seek_complete=lambda _: print("Seek complete"),
+            )
+            page.overlay.append(self.audio)
+            page.update()
+            # page.overlay[0].play()
+
+        def play_audio(self):
+            self.duration = self.audio.get_duration()
+            self.audio.play()
+            self.is_playing = True
+            self.player.content.controls[1].icon = ft.icons.PAUSE_ROUNDED
+            logger.info("Play audio")
+            page.update()
+
+
+
+        def change_playing_status(self):
+            if self.duration == None:
+                return
+            self.audio.pause() if self.is_playing else self.audio.resume()
+            self.is_playing = not self.is_playing
+            self.player.content.controls[1].icon = ft.icons.PAUSE_ROUNDED if self.is_playing else ft.icons.PLAY_ARROW_ROUNDED
+            logger.info("Change playing status to "+str(self.is_playing))
+            page.update()
+
+        def __init__(self) -> None:
+            self.is_playing = False
+            self.duration = None
+            self.player = ft.Container(
+                content=ft.Row(
+                    controls=[
+                        ft.Text("Playing...", width=200),
+                        ft.IconButton(
+                            ft.icons.PLAY_ARROW_ROUNDED,
+                            on_click=lambda e: self.change_playing_status(),
+                        ),
+                        ft.IconButton(ft.icons.RESTART_ALT_ROUNDED,on_click=lambda e: self.audio.seek(0)),
+                        ft.Slider(
+                            width=400,
+                            secondary_active_color=ft.colors.GREY,
+                            secondary_track_value=1,
+                            on_change=self.change_position,
+                        ),
+                        ft.Text("00:00"),
+                        ft.Text("/"),
+                        ft.Text("00:00"),
+                    ],
+                    height=38,
+                    width=1020,
+                ),
+                bgcolor=ft.colors.SURFACE_VARIANT,
+                border_radius=10,
+                padding=ft.padding.symmetric(vertical=3, horizontal=10),
+                alignment=ft.alignment.center,
+            )
+            
+
+    music_player = Player()
 
     class APP_Page:
 
         def build_search_page(self):  # 搜索页面
             self.search = ft.TextField(
-                hint_text="Search from KuGou", expand=True, on_submit=search_song)
-            self.songs = ft.Column(scroll="auto", width=1000, height=600, horizontal_alignment="center")
+                hint_text="Search from KuGou", expand=True, on_submit=self.search_song)
+            self.songs = ft.Column(scroll="auto", width=1020, height=600, horizontal_alignment="center")
             page = ft.Container(content=
                 ft.Column(
                     width=1030,
@@ -110,7 +183,7 @@ def main(page: ft.Page):
                             controls=[
                                 self.search,
                                 ft.FloatingActionButton(
-                                    icon=ft.icons.SEARCH, on_click=search_song),
+                                    icon=ft.icons.SEARCH, on_click=self.search_song),
                             ],
                         ),
                         # Container(self.songs,padding=padding.symmetric(horizontal=200)),
@@ -170,7 +243,7 @@ def main(page: ft.Page):
             )
 
             settings = ft.Column(
-                width=1000,
+                width=1020,
                 height=600,
                 scroll="auto",
                 controls=[
@@ -181,6 +254,12 @@ def main(page: ft.Page):
             )
             logger.info("Build settings page")
             return settings
+        
+        def search_song(self,e):
+            # music_player.load_audio("https://github.com/mdn/webaudio-examples/blob/main/audio-analyser/viper.mp3?raw=true")
+            music_player.load_audio(self.search_page.content.controls[0].controls[0].value)
+            logger.info("Search song: "+ self.search_page.content.controls[0].controls[0].value)
+            pass
 
         def __init__(self) -> None:
             self.search_page = self.build_search_page()
@@ -193,7 +272,7 @@ def main(page: ft.Page):
     if debug_mode:
         logger.setLevel(logging.INFO)
 
-    page.add(ft.Row(controls=[nav, ft.VerticalDivider(width=1), ft.Column(controls=[main_page, player])], height=650, width=1200, expand=True))
+    page.add(ft.Row(controls=[nav, ft.VerticalDivider(width=1), ft.Column(controls=[main_page, music_player.player])], height=650, width=1200, expand=True))
 
 
 # start the application
