@@ -151,12 +151,12 @@ jobs:
      - uses: actions/download-artifact@v2
        with:
         name: HT-Music-Downloader-MacOS
-        path: /
+        path: ./
 
      - uses: actions/download-artifact@v2
        with:
         name: HT-Music-Downloader-Windows
-        path: /
+        path: ./
 
      - name: Release
        uses: softprops/action-gh-release@v1
