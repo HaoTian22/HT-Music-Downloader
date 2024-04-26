@@ -36,6 +36,7 @@ config.yml
 *.mp3
 *.wav
 *.flac
+*.db
 
 
 # PyInstaller

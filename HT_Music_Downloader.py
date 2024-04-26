@@ -2,7 +2,15 @@ import flet as ft
 import logging
 import datetime
 # from Netease import *
-import Netease
+import Web_provider
+# import signal
+# import threading
+
+# def handle_signal(signum, frame):
+#     print("Received signal:", signum)
+
+# # Set up signal handling in main thread
+# signal.signal(signal.SIGINT, handle_signal)
 
 def format_time(milliseconds):
     seconds, milliseconds = divmod(milliseconds, 1000)
@@ -19,6 +27,8 @@ def main(page: ft.Page):
     if not page.client_storage.contains_key("debug"):
         page.client_storage.set("debug", False)
         page.client_storage.set("color", 'Blue')
+    if not page.client_storage.contains_key("web_provider"):
+        page.client_storage.set("web_provider", "Netease")
 
     color = page.client_storage.get('color')
     debug_mode = page.client_storage.get('debug')
@@ -169,8 +179,10 @@ def main(page: ft.Page):
                 padding=ft.padding.symmetric(vertical=3, horizontal=10),
                 alignment=ft.alignment.center,
             )
-
+    global music_player
     music_player = Player()
+    def web_song_loader(self,url):
+            music_player.load_audio(url)
 
     class APP_Page:
 
@@ -283,30 +295,111 @@ def main(page: ft.Page):
             )
             logger.info("Build settings page")
             return settings
+        
+        
 
         def search_song(self,e):
             # music_player.load_audio("https://github.com/mdn/webaudio-examples/blob/main/audio-analyser/viper.mp3?raw=true")
+            global music_player
             self.search_value = self.search_page.content.controls[0].controls[0].value
             if ("http" or ":\\") in self.search.value:
                 music_player.load_audio(self.search.value)
                 logger.info("Play song: "+ self.search.value)
                 return
             
-            song_objects = Netease.search(self.search_value)
+            provider = page.client_storage.get('web_provider')
+            songs_list = Web_provider.search(provider,self.search_value)
             # self.search_page.content.controls[1].controls=song_objects
+            song_objects = ft.Column(controls=[],scroll="auto",height=520,width=1020,horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+            for song in songs_list:
+                song_name = song["song_name"]
+                song_id = song["song_id"]
+                song_album = song["song_album"]
+                song_singer = song["song_singer"]
+                song_album_id = song["song_album_id"]
+                song_auxiliary = song["song_auxiliary"]
+                song_objects.controls.append(Song(song_name, song_id, song_album, song_singer, song_album_id, song_auxiliary).ui)
+
             self.search_page.content.controls.pop()
             self.search_page.content.controls.append(song_objects)
             # logger.info("Search song: "+ song.name)
             page.update()
 
             # logger.info("Search song: "+ self.search_page.content.controls[0].controls[0].value)
-            pass
+            # pass
 
         def __init__(self) -> None:
             self.search_page = self.build_search_page()
             self.local_page = self.build_local_page()
             self.settings_page = self.build_settings_page()
 
+
+    class Song:
+
+        def __init__(self, name, id, AlbumName, singer, AlbumID, Auxiliary):
+            super().__init__()
+            self.name = name
+            self.id = id
+            self.album = AlbumName
+            self.singer = singer
+            self.albumID = AlbumID
+            self.Auxiliary = Auxiliary
+            self.ui = self.build()
+
+
+        def play(self):
+            global music_player
+            # response = netease_cloud_music_api.request("/song/url/v1",{"id":self.id,"level":"higher"})
+            url = Web_provider.get_url("Netease",self.id)
+            print(url)
+
+            # from HT_Music_Downloader import web_song_loader
+            # web_song_loader(url)
+            # from HT_Music_Downloader import music_player
+            music_player.load_audio(url)
+            return url
+            # print(response)
+
+
+        # 渲染控件
+        def build(self):
+            # self.display_name = Text(value=self.name, expand=1)
+            print("Building song: "+self.name)
+            self.download_state = ft.IconButton(
+                icon=ft.icons.DOWNLOAD_ROUNDED,
+                tooltip="Download this song",
+                # on_click=self.download
+            )
+            Auxiliary = '\nAuxiliary: '+self.Auxiliary if self.Auxiliary != '' else ''
+            singer = 'Singer: '+self.singer+'    ' if len(self.singer)<=12 and len(self.album) <= 12 else 'Singer: '+self.singer+'\n'
+            album = 'Album: '+self.album if self.album != '' else ''
+            basicinfo = singer+album+Auxiliary
+            self.display_view = ft.Card(
+                content=ft.Container(
+                    padding=10,
+                    width=600,
+                    content=ft.Column(
+                        [
+                            ft.ListTile(
+                                leading=ft.Icon(ft.icons.MUSIC_NOTE_ROUNDED),
+                                title=ft.Text(self.name),
+                                subtitle=ft.Text(basicinfo),
+                            ),
+                            ft.Row([
+                                ft.IconButton(
+                                    icon=ft.icons.PLAY_ARROW_ROUNDED,
+                                    tooltip="Play",
+                                    on_click=lambda e: self.play()
+                                ),
+                                self.download_state
+                            ],
+                                alignment="end"
+                            )
+                        ]
+                    )
+                )
+            )
+            return self.display_view
     
 
 
