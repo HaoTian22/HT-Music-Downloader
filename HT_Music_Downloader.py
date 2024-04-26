@@ -117,6 +117,7 @@ def main(page: ft.Page):
             page.update()
 
         def load_audio(self,url):
+            self.player.content.controls[3].disabled = True
             self.audio = ft.Audio(
             src=url,
             autoplay=False,
@@ -125,10 +126,11 @@ def main(page: ft.Page):
             on_loaded=lambda _: self.play_audio(),
             on_duration_changed=lambda e: print("Duration changed:", e.data),
             on_position_changed=lambda e: self.show_position(),
-            on_state_changed=lambda e: print("State changed:", e.data),
+            on_state_changed=self.show_state,
             on_seek_complete=lambda _: print("Seek complete"),
             )
             page.overlay.append(self.audio)
+            self.player.content.controls[3].disabled = False
             page.update()
             # page.overlay[0].play()
 
@@ -136,16 +138,21 @@ def main(page: ft.Page):
             self.duration = self.audio.get_duration()
             self.audio.play()
             self.is_playing = True
-            self.player.content.controls[1].icon = ft.icons.PAUSE_ROUNDED
+            # self.player.content.controls[1].icon = ft.icons.PAUSE_ROUNDED
             logger.info("Play audio")
             page.update()
 
+        def show_state(self,e):
+            self.player.content.controls[1].icon = ft.icons.PAUSE_ROUNDED if e.data == "playing" else ft.icons.PLAY_ARROW_ROUNDED
+            print("State changed:", e.data)
+            page.update()
+            
         def change_playing_status(self):
             if self.duration == None:
                 return
             self.audio.pause() if self.is_playing else self.audio.resume()
             self.is_playing = not self.is_playing
-            self.player.content.controls[1].icon = ft.icons.PAUSE_ROUNDED if self.is_playing else ft.icons.PLAY_ARROW_ROUNDED
+            
             logger.info("Change playing status to "+str(self.is_playing))
             page.update()
 
@@ -163,8 +170,7 @@ def main(page: ft.Page):
                         ft.IconButton(ft.icons.RESTART_ALT_ROUNDED,on_click=lambda e: self.audio.seek(0)),
                         ft.Slider(
                             width=400,
-                            secondary_active_color=ft.colors.GREY,
-                            secondary_track_value=1,
+                            inactive_color=ft.colors.GREY,
                             on_change=self.change_position,
                         ),
                         ft.Text("00:00"),
@@ -181,8 +187,6 @@ def main(page: ft.Page):
             )
     global music_player
     music_player = Player()
-    def web_song_loader(self,url):
-            music_player.load_audio(url)
 
     class APP_Page:
 
