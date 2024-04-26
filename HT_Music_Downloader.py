@@ -11,7 +11,7 @@ def format_time(milliseconds):
 
 
 def main(page: ft.Page):
-    page.title = "HT's Music Player"
+    page.title = "HT's Music Downloader"
     # page.horizontal_alignment = "center"
     # page.vertical_alignment = "center"
     # page.scroll = "adaptive"
@@ -293,9 +293,10 @@ def main(page: ft.Page):
                 return
             
             song_objects = Netease.search(self.search_value)
-            for song in song_objects:
-                self.search_page.content.controls[1].controls.append(song.ui)
-                logger.info("Search song: "+ song.name)
+            # self.search_page.content.controls[1].controls=song_objects
+            self.search_page.content.controls.pop()
+            self.search_page.content.controls.append(song_objects)
+            # logger.info("Search song: "+ song.name)
             page.update()
 
             # logger.info("Search song: "+ self.search_page.content.controls[0].controls[0].value)
