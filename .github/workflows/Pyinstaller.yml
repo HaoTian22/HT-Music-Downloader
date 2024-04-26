@@ -40,7 +40,11 @@ jobs:
       # Runs a single command using the runners shell
       - name: Install pip
         run: pip install -r requirements.txt
-
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.19.0
       # Runs a set of commands using the runners shell
       - name: flet
         run: |
@@ -73,7 +77,11 @@ jobs:
       # Runs a single command using the runners shell
       - name: Install pip
         run: pip install -r requirements.txt
-
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.19.0
       # Runs a set of commands using the runners shell
       - name: flet
         run: |
@@ -106,7 +114,11 @@ jobs:
       # Runs a single command using the runners shell
       - name: Install pip
         run: pip install -r requirements.txt
-
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.19.0
       # Runs a set of commands using the runners shell
       - name: flet
         run: |
