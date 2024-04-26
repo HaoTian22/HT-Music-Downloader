@@ -124,7 +124,7 @@ jobs:
       - name: flet
         run: |
           sudo apt install libgtk-3-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libunwind-dev
-          flet build linux --module-name HT_Music_Downloader.py --include-packages flet_audio
+          sudo flet build linux --module-name HT_Music_Downloader.py --include-packages flet_audio
           zip -r HT-Music-Downloader-Linux build/linux/
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
@@ -134,7 +134,7 @@ jobs:
           # A file, directory or wildcard pattern that describes what to upload
           path: HT-Music-Downloader-Linux.zip
 
-  build-android:
+  build-Android:
     # The type of runner that the job will run on
     runs-on: windows-latest
 
@@ -172,7 +172,7 @@ jobs:
       
 
   Auto_release:
-   needs: [build-Windows,build-Macos,build-android]
+   needs: [build-Windows,build-MacOS,build-Android]
    runs-on: ubuntu-latest
    steps:
      - uses: actions/checkout@v2
