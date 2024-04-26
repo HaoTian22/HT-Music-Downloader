@@ -1,0 +1,1 @@
+flet build windows --module-name HT_Music_Downloader.py --include-packages flet_audio
