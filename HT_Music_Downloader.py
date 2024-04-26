@@ -274,6 +274,8 @@ def main(page: ft.Page):
                                 dense=True,
                                 width=200,
                                 bgcolor=ft.colors.ON_INVERSE_SURFACE,
+                                value=page.client_storage.get('web_provider'),
+                                # filled = True,
                                 options=[
                                     ft.dropdown.Option("Netease"),
                                     ft.dropdown.Option("KuGou"),

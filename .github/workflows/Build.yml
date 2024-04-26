@@ -135,36 +135,28 @@ jobs:
           path: HT-Music-Downloader-Linux.zip
 
   Auto_release:
-   needs: [build-Windows,build-Macos,build-Linux]
+   needs: [build-Windows,build-Macos]
    runs-on: ubuntu-latest
    steps:
      - uses: actions/checkout@v2
-     - uses: actions/download-artifact@v2
-       with:
-        name: HT-Music-Downloader-Linux
-        path: zip/Linux
-     - uses: vimtor/action-zip@v1
-       with:
-        files: zip/Linux
-        dest: HT-Music-Downloader-Linux.zip
+    #  - uses: actions/download-artifact@v2
+    #    with:
+    #     name: HT-Music-Downloader-Linux
+    #     path: zip/Linux
+    #  - uses: vimtor/action-zip@v1
+    #    with:
+    #     files: zip/Linux
+    #     dest: HT-Music-Downloader-Linux.zip
 
      - uses: actions/download-artifact@v2
        with:
         name: HT-Music-Downloader-MacOS
-        path: zip/MacOS
-     - uses: vimtor/action-zip@v1
-       with:
-        files: zip/MacOS
-        dest: HT-Music-Downloader-MacOS.zip
+        path: /
 
      - uses: actions/download-artifact@v2
        with:
         name: HT-Music-Downloader-Windows
-        path: zip/Windows
-     - uses: vimtor/action-zip@v1
-       with:
-        files: zip/Windows
-        dest: HT-Music-Downloader-Windows.zip
+        path: /
 
      - name: Release
        uses: softprops/action-gh-release@v1
