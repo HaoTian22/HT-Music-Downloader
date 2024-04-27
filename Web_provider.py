@@ -7,8 +7,10 @@ def search(provider, search_value):
         return Netease.search(search_value)
     elif provider == "KuGou":
         return KuGou.search(search_value)
+    elif provider == "QQ":
+        pass
     else:
-        return None
+        return []
     
 def get_url(provider, song_id):
     if provider == "Netease":

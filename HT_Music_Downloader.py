@@ -1,7 +1,7 @@
 import os
 import flet as ft
 import logging
-import datetime
+import time
 # from Netease import *
 import Web_provider
 # import signal
@@ -29,7 +29,7 @@ def main(page: ft.Page):
         page.client_storage.set("debug", False)
         page.client_storage.set("color", 'Blue')
     if not page.client_storage.contains_key("web_provider"):
-        page.client_storage.set("web_provider", "Netease")
+        page.client_storage.set("web_provider", "None")
 
     color = page.client_storage.get('color')
     debug_mode = page.client_storage.get('debug')
@@ -126,6 +126,7 @@ def main(page: ft.Page):
             self.player.content.controls[4].value = "00:00"
             self.player.content.controls[6].value = "00:00"
             self.name = name if name != None else url
+            self.duration = None
 
             page.update()
             self.audio = ft.Audio(
@@ -180,7 +181,7 @@ def main(page: ft.Page):
             self.player = ft.Container(
                 content=ft.Row(
                     controls=[
-                        ft.Text(self.name, width=200, no_wrap=True,text_align='right'),
+                        ft.Text(self.name, width=200, no_wrap=True,text_align='right',rtl=True),
                         ft.IconButton(
                             ft.icons.PLAY_ARROW_ROUNDED,
                             on_click=lambda e: self.change_playing_status(),
@@ -304,6 +305,7 @@ def main(page: ft.Page):
                                 value=page.client_storage.get('web_provider'),
                                 # filled = True,
                                 options=[
+                                    ft.dropdown.Option("None"),
                                     ft.dropdown.Option("Netease"),
                                     ft.dropdown.Option("KuGou"),
                                     ft.dropdown.Option("QQ"),
@@ -344,7 +346,7 @@ def main(page: ft.Page):
             logger.info("Songs list: "+str(songs_list))
             song_objects = ft.ListView(controls=[],height=520,width=1040,padding=20,spacing=8)
             if len(songs_list) == 0:
-                song_objects.controls.append(ft.Text("No result found"))
+                song_objects.controls.append(ft.Text("No result found\nPlease try another keyword, or change the web provider in settings page.",text_align='center'))
 
             for song in songs_list:
                 song_name = song["song_name"]
@@ -386,6 +388,7 @@ def main(page: ft.Page):
             # response = netease_cloud_music_api.request("/song/url/v1",{"id":self.id,"level":"higher"})
             # 本地优先
             music_player.load_audio("./Music/"+self.singer+" - "+self.name+".mp3")
+            time.sleep(0.5)
             duration = music_player.duration
             if duration == None:
                 url = Web_provider.get_url(self.provider,self.id)
@@ -412,8 +415,8 @@ def main(page: ft.Page):
                 # from HT_Music_Downloader import web_song_loader
                 # web_song_loader(url)
                 # from HT_Music_Downloader import music_player
-                music_player.load_audio(url,self.name)
-            return url
+                music_player.load_audio(url,self.singer+" - "+self.name)
+            # return url
             # print(response)
 
         def download(self,e):
