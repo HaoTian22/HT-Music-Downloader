@@ -15,15 +15,22 @@ def search(search_value):
     print(response)  # 打印返回结果
     ''''''
     try:
-        result_list = response["data"]["result"]["songs"]  # 获取歌曲列表   
+        
+        result_list = response["data"]["result"]  # 获取歌曲列表  
+        if result_list["songCount"] == 0:
+            return []
+        result_song_list = result_list["songs"] 
         mode = 1
-    except TypeError:
+    except:
         response = requests.get("https://neteasecloudmusicapi.vercel.app/search?keywords="+search_value).json()
-        result_list = response["result"]["songs"]
+        result_list = response["result"]
+        if result_list["songCount"] == 0:
+            return []
+        result_song_list = result_list["songs"]
         mode = 2
     # song_objects = ft.Column(controls=[],scroll="auto",height=520,width=1020,horizontal_alignment=ft.CrossAxisAlignment.CENTER)
     songs_list = []
-    for song in result_list:
+    for song in result_song_list:
         if mode == 1:
             song_name = song["name"]
             song_id = song["id"]

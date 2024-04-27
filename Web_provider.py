@@ -1,3 +1,4 @@
+import requests
 import Netease
 import KuGou
 
@@ -16,3 +17,6 @@ def get_url(provider, song_id):
         return KuGou.get_url(song_id)
     else:
         return None
+    
+def get_mp3(url):
+    return requests.get(url).content
