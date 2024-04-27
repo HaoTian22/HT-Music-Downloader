@@ -124,10 +124,10 @@ def main(page: ft.Page):
             volume=1,
             balance=0,
             on_loaded=lambda _: self.play_audio(),
-            on_duration_changed=lambda e: print("Duration changed:", e.data),
+            on_duration_changed=lambda e: logger.info("Duration changed: "+str(e.data)),
             on_position_changed=lambda e: self.show_position(),
             on_state_changed=self.show_state,
-            on_seek_complete=lambda _: print("Seek complete"),
+            # on_seek_complete=lambda _: print("Seek complete"),
             )
             page.overlay.append(self.audio)
             self.player.content.controls[3].disabled = False
@@ -144,7 +144,8 @@ def main(page: ft.Page):
 
         def show_state(self,e):
             self.player.content.controls[1].icon = ft.icons.PAUSE_ROUNDED if e.data == "playing" else ft.icons.PLAY_ARROW_ROUNDED
-            print("State changed:", e.data)
+            # print("State changed:", e.data)
+            logger.info("State changed: "+e.data)
             page.update()
             
         def change_playing_status(self):
@@ -361,7 +362,8 @@ def main(page: ft.Page):
             global music_player
             # response = netease_cloud_music_api.request("/song/url/v1",{"id":self.id,"level":"higher"})
             url = Web_provider.get_url(self.provider,self.id)
-            print(url)
+            # print(url)
+            logger.info("Provider Response: "+str(url))
 
             if type(url) == dict:
                 app_page.search_page.controls[1].title = ft.Text("Error: ")
@@ -391,7 +393,8 @@ def main(page: ft.Page):
         # 渲染控件
         def build(self):
             # self.display_name = Text(value=self.name, expand=1)
-            print("Building song: "+self.name)
+            # print("Building song: "+self.name)
+            logger.info("Building song: "+self.name)
             self.download_state = ft.IconButton(
                 icon=ft.icons.DOWNLOAD_ROUNDED,
                 tooltip="Download this song",
@@ -445,7 +448,7 @@ def main(page: ft.Page):
 #                     datefmt='%Y-%m-%d %H:%M:%S', filename='log.log', filemode="w")
 logger = logging.getLogger()
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
-handler = logging.FileHandler("log.log", mode="w")
+handler = logging.FileHandler("log.log", mode="w", encoding="utf-8")
 handler.setFormatter(formatter)
 console = logging.StreamHandler()
 console.setFormatter(formatter)
@@ -454,6 +457,5 @@ logger.setLevel(logging.WARNING)
 # logger.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 logger.addHandler(console)
-logger.setLevel(logging.INFO)
 
 ft.app(target=main,assets_dir="./assets")

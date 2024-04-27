@@ -134,45 +134,45 @@ jobs:
           # A file, directory or wildcard pattern that describes what to upload
           path: HT-Music-Downloader-Linux.zip
 
-  build-Android:
-    # The type of runner that the job will run on
-    runs-on: windows-latest
+  # build-Android:
+  #   # The type of runner that the job will run on
+  #   runs-on: windows-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+  #   # Steps represent a sequence of tasks that will be executed as part of the job
+  #   steps:
+  #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+  #     - uses: actions/checkout@v3
       
-      - name: Setup Python
-        uses: actions/setup-python@v4.1.0
-        with:
-          # Version range or exact version of Python to use, using SemVer's version range syntax. Reads from .python-version if unset.
-          python-version: '3.11'
+  #     - name: Setup Python
+  #       uses: actions/setup-python@v4.1.0
+  #       with:
+  #         # Version range or exact version of Python to use, using SemVer's version range syntax. Reads from .python-version if unset.
+  #         python-version: '3.11'
 
-      # Runs a single command using the runners shell
-      - name: Install pip
-        run: pip install -r requirements.txt
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          flutter-version: 3.19.6
-      # Runs a set of commands using the runners shell
-      - name: flet
-        run: |
-          flet build apk --module-name HT_Music_Downloader.py --include-packages flet_audio
-          zip -r HT-Music-Downloader-Android.zip build/apk/
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3.1.0
-        with:
-          # Artifact name
-          name: HT-Music-Downloader-Android
-          # A file, directory or wildcard pattern that describes what to upload
-          path: HT-Music-Downloader-Android.zip
+  #     # Runs a single command using the runners shell
+  #     - name: Install pip
+  #       run: pip install -r requirements.txt
+  #     - name: Set up Flutter
+  #       uses: subosito/flutter-action@v2
+  #       with:
+  #         channel: stable
+  #         flutter-version: 3.19.6
+  #     # Runs a set of commands using the runners shell
+  #     - name: flet
+  #       run: |
+  #         flet build apk --module-name HT_Music_Downloader.py --include-packages flet_audio
+  #         zip -r HT-Music-Downloader-Android.zip build/apk/
+  #     - name: Upload a Build Artifact
+  #       uses: actions/upload-artifact@v3.1.0
+  #       with:
+  #         # Artifact name
+  #         name: HT-Music-Downloader-Android
+  #         # A file, directory or wildcard pattern that describes what to upload
+  #         path: HT-Music-Downloader-Android.zip
       
 
   Auto_release:
-   needs: [build-Windows,build-MacOS,build-Android]
+   needs: [build-Windows,build-MacOS]
    runs-on: ubuntu-latest
    steps:
      - uses: actions/checkout@v2
@@ -195,10 +195,10 @@ jobs:
         name: HT-Music-Downloader-Windows
         path: ./
 
-     - uses: actions/download-artifact@v2
-       with:
-        name: HT-Music-Downloader-Android
-        path: ./
+    #  - uses: actions/download-artifact@v2
+    #    with:
+    #     name: HT-Music-Downloader-Android
+    #     path: ./
 
      - name: Release
        uses: softprops/action-gh-release@v1
