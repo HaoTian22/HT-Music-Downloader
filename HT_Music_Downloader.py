@@ -194,8 +194,8 @@ def main(page: ft.Page):
             self.search = ft.TextField(
                 hint_text="Search from Web or Enter URL", expand=True, on_submit=self.search_song,text_align='center')
             self.songs = ft.Column(scroll="auto", width=1020, height=600, horizontal_alignment="center")
-            page = ft.Container(content=
-                ft.Column(
+            page = ft.Stack(controls=
+                [ft.Column(
                     width=1030,
                     height=600,
                     controls=[
@@ -208,8 +208,11 @@ def main(page: ft.Page):
                         ),
                         # Container(self.songs,padding=padding.symmetric(horizontal=200)),
                         ft.Column(controls=[],scroll="auto",height=520,width=1020,horizontal_alignment=ft.CrossAxisAlignment.CENTER),
+                        
                     ]
                 ),
+                ft.AlertDialog(title=ft.Text("QR Code"))
+                ],
             )
             # self.main_page=page
             logger.info("Build main page")
@@ -307,7 +310,7 @@ def main(page: ft.Page):
         def search_song(self,e):
             # music_player.load_audio("https://github.com/mdn/webaudio-examples/blob/main/audio-analyser/viper.mp3?raw=true")
             global music_player
-            self.search_value = self.search_page.content.controls[0].controls[0].value
+            self.search_value = self.search_page.controls[0].controls[0].controls[0].value
             if ("http" or ":\\") in self.search.value:
                 music_player.load_audio(self.search.value)
                 logger.info("Play song: "+ self.search.value)
@@ -324,10 +327,10 @@ def main(page: ft.Page):
                 song_singer = song["song_singer"]
                 song_album_id = song["song_album_id"]
                 song_auxiliary = song["song_auxiliary"]
-                song_objects.controls.append(Song(song_name, song_id, song_album, song_singer, song_album_id, song_auxiliary).ui)
+                song_objects.controls.append(Song(song_name, song_id, song_album, song_singer, song_album_id, song_auxiliary,provider).ui)
 
-            self.search_page.content.controls.pop()
-            self.search_page.content.controls.append(song_objects)
+            self.search_page.controls[0].controls.pop()
+            self.search_page.controls[0].controls.append(song_objects)
             # logger.info("Search song: "+ song.name)
             page.update()
 
@@ -342,7 +345,7 @@ def main(page: ft.Page):
 
     class Song:
 
-        def __init__(self, name, id, AlbumName, singer, AlbumID, Auxiliary):
+        def __init__(self, name, id, AlbumName, singer, AlbumID, Auxiliary,provider):
             super().__init__()
             self.name = name
             self.id = id
@@ -351,14 +354,32 @@ def main(page: ft.Page):
             self.albumID = AlbumID
             self.Auxiliary = Auxiliary
             self.ui = self.build()
+            self.provider = provider
 
 
         def play(self):
             global music_player
             # response = netease_cloud_music_api.request("/song/url/v1",{"id":self.id,"level":"higher"})
-            url = Web_provider.get_url("Netease",self.id)
+            url = Web_provider.get_url(self.provider,self.id)
             print(url)
 
+            if type(url) == dict:
+                app_page.search_page.controls[1].title = ft.Text("Error: ")
+                app_page.search_page.controls[1].content = ft.Text(url['error'])
+                app_page.search_page.controls[1].open = True
+                page.update()
+                return
+            # if "image" in url:
+            #     # dialog = ft.AlertDialog(
+            #     #     title="QR Code",
+            #     #     open=True,
+            #     #     content=ft.Image(src_base64=url),
+            #     #     # actions=[ft.DialogAction(label="Close", on_click=lambda e: dialog.close())],
+            #     # )
+            #     app_page.search_page.controls[1].content = ft.Image(src_base64=url[22:])
+            #     app_page.search_page.controls[1].open = True
+            #     page.update()
+                # pass
             # from HT_Music_Downloader import web_song_loader
             # web_song_loader(url)
             # from HT_Music_Downloader import music_player
@@ -376,7 +397,7 @@ def main(page: ft.Page):
                 tooltip="Download this song",
                 # on_click=self.download
             )
-            Auxiliary = '\nAuxiliary: '+self.Auxiliary if self.Auxiliary != '' else ''
+            Auxiliary = '\nNote: '+self.Auxiliary if self.Auxiliary != '' else ''
             singer = 'Singer: '+self.singer+'    ' if len(self.singer)<=12 and len(self.album) <= 12 else 'Singer: '+self.singer+'\n'
             album = 'Album: '+self.album if self.album != '' else ''
             basicinfo = singer+album+Auxiliary

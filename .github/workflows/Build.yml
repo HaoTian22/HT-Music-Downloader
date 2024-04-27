@@ -195,6 +195,11 @@ jobs:
         name: HT-Music-Downloader-Windows
         path: ./
 
+     - uses: actions/download-artifact@v2
+       with:
+        name: HT-Music-Downloader-Android
+        path: ./
+
      - name: Release
        uses: softprops/action-gh-release@v1
        if: github.event_name=='workflow_dispatch'
