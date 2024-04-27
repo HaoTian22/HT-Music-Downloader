@@ -21,7 +21,7 @@ def search(search_value):
             return []
         result_song_list = result_list["songs"] 
         mode = 1
-    except:
+    except TypeError:
         response = requests.get("https://neteasecloudmusicapi.vercel.app/search?keywords="+search_value).json()
         result_list = response["result"]
         if result_list["songCount"] == 0:

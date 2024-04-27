@@ -117,13 +117,15 @@ def main(page: ft.Page):
             # print("Change position to "+str(timestamp))
             page.update()
 
-        def load_audio(self,url):
+        def load_audio(self,url,name=None):
+            self.player.content.controls[0].value = "No song"
             self.player.content.controls[1].disabled = True
             self.player.content.controls[2].disabled = True
             self.player.content.controls[3].disabled = True
             self.player.content.controls[3].value = 0
             self.player.content.controls[4].value = "00:00"
             self.player.content.controls[6].value = "00:00"
+            self.name = name if name != None else url
 
             page.update()
             self.audio = ft.Audio(
@@ -145,6 +147,8 @@ def main(page: ft.Page):
             self.duration = self.audio.get_duration()
             logger.info("Duration: "+str(self.duration))
             if self.duration != None:
+                self.player.content.controls[0].value = self.name
+                print(self.name)
                 self.player.content.controls[1].disabled = False
                 self.player.content.controls[2].disabled = False
                 self.player.content.controls[3].disabled = False
@@ -171,11 +175,12 @@ def main(page: ft.Page):
 
         def __init__(self) -> None:
             self.is_playing = False
+            self.name = "No song"
             self.duration = None
             self.player = ft.Container(
                 content=ft.Row(
                     controls=[
-                        ft.Text("Playing...", width=200),
+                        ft.Text(self.name, width=200, no_wrap=True,text_align='right'),
                         ft.IconButton(
                             ft.icons.PLAY_ARROW_ROUNDED,
                             on_click=lambda e: self.change_playing_status(),
@@ -337,7 +342,7 @@ def main(page: ft.Page):
             songs_list = Web_provider.search(provider,self.search_value)
             # self.search_page.content.controls[1].controls=song_objects
             logger.info("Songs list: "+str(songs_list))
-            song_objects = ft.ListView(controls=[],height=520,width=1040,padding=20)
+            song_objects = ft.ListView(controls=[],height=520,width=1040,padding=20,spacing=8)
             if len(songs_list) == 0:
                 song_objects.controls.append(ft.Text("No result found"))
 
@@ -407,7 +412,7 @@ def main(page: ft.Page):
                 # from HT_Music_Downloader import web_song_loader
                 # web_song_loader(url)
                 # from HT_Music_Downloader import music_player
-                music_player.load_audio(url)
+                music_player.load_audio(url,self.name)
             return url
             # print(response)
 
@@ -506,9 +511,9 @@ def main(page: ft.Page):
                                     ]
                                 ),
                                 bgcolor_activated=ft.colors.ON_INVERSE_SURFACE,
-                                width=900,
+                                width=830,
                             ),
-                            ft.Column(
+                            ft.Row(
                                 [
                                     ft.IconButton(
                                         icon=ft.icons.PLAY_ARROW_ROUNDED,
