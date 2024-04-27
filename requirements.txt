@@ -1,3 +1,5 @@
 flet==0.22.0
 NeteaseCloudMusic==0.1.10
 Requests==2.31.0
+youtube-dl==2021.12.17
+ytmusicapi==1.6.0

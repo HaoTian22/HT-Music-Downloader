@@ -1,7 +1,7 @@
 import requests
 # import logging
 # import threading
-import flet as ft
+# import flet as ft
 from NeteaseCloudMusic import NeteaseCloudMusicApi, api_help, api_list
 
 netease_cloud_music_api = NeteaseCloudMusicApi()  # 初始化API

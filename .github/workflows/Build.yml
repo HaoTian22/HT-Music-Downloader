@@ -49,7 +49,7 @@ jobs:
       - name: flet
         run: |
           flet build windows --module-name HT_Music_Downloader.py --include-packages flet_audio
-          Compress-Archive -Path ./build/windows/ -DestinationPath HT-Music-Downloader-Windows.zip
+          Compress-Archive -Path ./build/windows/* -DestinationPath HT-Music-Downloader-Windows.zip
       # ren ./build/HT_Music_Downloader.exe "HT-Music-Downloader-Windows.exe"
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
@@ -87,7 +87,7 @@ jobs:
       - name: flet
         run: |
           flet build macos --module-name HT_Music_Downloader.py --include-packages flet_audio
-          zip -vr HT-Music-Downloader-MacOS.zip build/macos/ -x "*.DS_Store"
+          zip -vr HT-Music-Downloader-MacOS.zip build/macos/* -x "*.DS_Store"
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
         with:

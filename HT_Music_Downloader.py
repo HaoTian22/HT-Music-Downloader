@@ -308,6 +308,7 @@ def main(page: ft.Page):
                                     ft.dropdown.Option("None"),
                                     ft.dropdown.Option("Netease"),
                                     ft.dropdown.Option("KuGou"),
+                                    ft.dropdown.Option("YTMusic"),
                                     ft.dropdown.Option("QQ"),
                                 ],
                                 on_change=web_provider_change,
@@ -430,10 +431,8 @@ def main(page: ft.Page):
                 page.update()
                 return
 
-            if not os.path.exists("./Music"):
-                os.makedirs("Music")
-            with open("./Music/"+self.singer+" - "+self.name+".mp3", "wb") as file:
-                file.write(Web_provider.get_mp3(url))
+            Web_provider.get_mp3(self.provider,url,self.singer+" - "+self.name+".mp3")
+
             logger.info("Downloaded: "+self.name)
 
             self.download_state.icon = ft.icons.DOWNLOAD_DONE_ROUNDED
