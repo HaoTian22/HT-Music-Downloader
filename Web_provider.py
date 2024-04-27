@@ -24,7 +24,8 @@ def get_url(provider, song_id):
     elif provider == "QQ":
         pass
     elif provider == "YTMusic":
-        return 'https://www.youtube.com/watch?v='+song_id
+        return ytmusic.get_url(song_id)
+        # return 'https://www.youtube.com/watch?v='+song_id
     else:
         return None
     
@@ -34,7 +35,10 @@ def get_mp3(provider,url,filename):
 
     if provider != "YTMusic":
         mp3_content = requests.get(url).content
-        with open("./Music/"+filename, "wb") as file:
+        if os.path.exists("./Music/"+filename+".mp3"):
+            print("File already exists")
+            return
+        with open("./Music/"+filename+".mp3", "wb") as file:
             file.write(mp3_content)
     else:
         ytmusic.download(url, filename)

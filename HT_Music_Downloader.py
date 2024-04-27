@@ -181,7 +181,7 @@ def main(page: ft.Page):
             self.player = ft.Container(
                 content=ft.Row(
                     controls=[
-                        ft.Text(self.name, width=200, no_wrap=True,text_align='right',rtl=True),
+                        ft.Text(self.name, width=200, no_wrap=True,text_align='right'),
                         ft.IconButton(
                             ft.icons.PLAY_ARROW_ROUNDED,
                             on_click=lambda e: self.change_playing_status(),
@@ -431,11 +431,17 @@ def main(page: ft.Page):
                 page.update()
                 return
 
-            Web_provider.get_mp3(self.provider,url,self.singer+" - "+self.name+".mp3")
+            # 单独处理YTMusic，因为YTMusic的下载需要调用yt_dlp
+            # 其实大多数时候，用yt_dlp下载会比拿到URL再get更快
+            if self.provider == "YTMusic":
+                url = 'https://www.youtube.com/watch?v='+self.id
+
+            Web_provider.get_mp3(self.provider,url,self.singer+" - "+self.name)
 
             logger.info("Downloaded: "+self.name)
 
             self.download_state.icon = ft.icons.DOWNLOAD_DONE_ROUNDED
+            page.update()
 
         # 渲染控件
         def build(self):

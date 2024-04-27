@@ -1,5 +1,6 @@
 from ytmusicapi import YTMusic
-import youtube_dl
+import yt_dlp
+import json
 
 ytmusic_tool = YTMusic()
 
@@ -42,9 +43,10 @@ def search(keyword):
     return song_list
 
 def get_url(song_id):
-    ydl = youtube_dl.YoutubeDL(ydl_opts)
+    ydl = yt_dlp.YoutubeDL(ydl_opts)
     # ydl.geturl(['https://www.youtube.com/watch?v=lYBUbBu4W08'])
-    format_list = ydl.extract_info("https://www.youtube.com/watch?v="+song_id, download=False) 
+    info = ydl.extract_info("https://www.youtube.com/watch?v="+song_id, download=False) 
+    format_list = ydl.sanitize_info(info)
     for format in format_list["formats"]:
         if format["ext"] == "m4a":
             url = format["url"]
@@ -54,5 +56,5 @@ def get_url(song_id):
 
 def download(url, filename):
     ydl_opts["outtmpl"] = "music/"+filename
-    ydl = youtube_dl.YoutubeDL(ydl_opts)
+    ydl = yt_dlp.YoutubeDL(ydl_opts)
     ydl.download([url])
