@@ -1,32 +1,60 @@
 # HT's Music Downloader v4
 
-🎶一个简单的Material Design 3的音乐下载器  
-🌏中文 | [English](https://github.com/HaoTian22/HT-Music-Downloader/blob/master/README_EN.md)
+🎶A simple Material Design 3 music downloader  
+🌏English | [中文](https://github.com/HaoTian22/HT-Music-Downloader/blob/master/README_CN.md)
 
-## 特性
+## Features
 
-✅完整支持 | ☑️部分支持 | ❌不支持 | 🕑计划中
+✅Full support | ☑️Partial support | ❌No support | 🕑In plan
 
 ---
 
-✅支持根据歌曲名称搜索下载  
-🕑自动嵌入歌曲信息/歌词/封面  
-☑️多平台Win/Mac/Linux（Linux理论上可以，但是构建bin会报错）  
-🕑lrc歌词下载  
-✅自定义主题  
-☑️多种网络音源（2种），更多其他源有空可能会加（懒）  
-✅简单的播放支持
-🕑酷狗码歌单导入  
-🕑本地音乐播放  
-🕑多选/批量下载  
-🕑播放时显示歌词  
-❌付费歌曲的所有功能  
+✅Search for music  
+🕑Embeded song info, lyrics and cover in the file  
+☑️Win/Mac/Linux support(Only python/Not support build bin)  
+🕑.lrc lyric download
+✅Customized themes  
+☑️Get songs from Music Streaming platforms online(KuGou/Netease/Youtube Music)*  
+✅Play music
+🕑Playlist import  
+🕑Local music  
+🕑Multiple choice  
+🕑Show lyrics during playback  
+❌All functions for paid songs  
 
-## 注意事项
+*Limited access from KuGou, Netease is supported by [NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi), Youtube Music is supported by [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 
-- 由于技术原因，exe程序可能需要花较久时间打开（pyinstaller打包的程序都这样）  
+## How to use
 
-## 屏幕截图
+### Method A (Recommended)
+
+1. Clone the repository by running `git clone https://github.com/HaoTian22/HT-Music-Downloader.git`
+2. Install the required packages by running `pip install -r requirements.txt`
+3. Run the program by running `python HT_Music_Downloader.py`
+
+### Method B
+
+Note: This method is not recommended, as the EXE program is basically not functional.  
+Known issues:  
+
++ yt-dlp reports `403 forbidden` when downloading songs
++ Cannot deal with Netease Cloud Music API's response
++ Relative path is set to `%temp%/ht_music_downloader-1.0.0-1` folder, which may cause errors
++ Cannot enter local URL to search box to play music
+
+~~(So almost nothing works)~~
+
+Steps:
+
+1. Download the latest release from the [releases page](https://github.com/HaoTian22/HT-Music-Downloader/releases)
+2. Unzip the file
+3. Run the program by double click `HT_Music_Downloader.exe`
+
+## Known Issues
+
++ EXE program is basically not functional, please run the source code, trying to solve
+
+## Screenshot
 
 V4
 ![image](https://user-images.githubusercontent.com/48882584/180126365-dd758718-0ef1-4ff8-b4b5-1c521382eacc.png)
@@ -35,13 +63,15 @@ V4.5
 ![Screenshot 2024-04-27 163212](https://github.com/HaoTian22/HT-Music-Downloader/assets/48882584/9a9083a9-8178-4980-8aca-d05a6f42f7ec)
 ![1714207476510](https://github.com/HaoTian22/HT-Music-Downloader/assets/48882584/3a5b67d5-c83b-49c3-bd76-7968fac8a761)
 
+## For Developers
 
-## 杂项
+Welcome to contribute to this project!
 
-[Apache License](https://github.com/HT-Music/HT-Music-Downloader/blob/master/LICENSE)  
+## License
 
-Power By:  
-[Python](https://python.org) | [Flutter](https://flutter.dev) | [Flet](https://flet.dev)
+[Apache License](https://github.com/HT-Music/HT-Music-Downloader/blob/master/LICENSE)
 
-## Todo 
-重构v4→v4.5（使用新版flet+LLM辅助编写，优化代码逻辑，播放功能）
+## Credits
+
+Powered By:  
+[Python](https://python.org) | [Flutter](https://flutter.dev) | [Flet](https://flet.dev) | [NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi) | [yt-dlp](https://github.com/yt-dlp/yt-dlp)
