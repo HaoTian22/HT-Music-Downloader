@@ -3,3 +3,4 @@ NeteaseCloudMusic==0.1.10
 Requests==2.31.0
 yt_dlp==2024.4.9
 ytmusicapi==1.6.0
+eyed3==0.9.7

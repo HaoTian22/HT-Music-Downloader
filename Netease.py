@@ -50,8 +50,16 @@ def search(search_value):
     # Only UI
     return songs_list
 
-def get_url(song_id):
-    response = netease_cloud_music_api.request("/song/url/v1",{"id":song_id,"level":"higher"})
+def get_url(song_id,quality="higher"):
+    if quality == "Standard":
+        quality = 'standard'
+    elif quality == "Higher":
+        quality = 'higher'
+    elif quality == "Ex-High":
+        quality = 'exhigh'
+    elif quality == "Lossless":
+        quality = 'lossless'
+    response = netease_cloud_music_api.request("/song/url/v1",{"id":song_id,"level":quality})
     url = response["data"]["data"][0]["url"]
     return url
 

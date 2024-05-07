@@ -31,6 +31,8 @@ def main(page: ft.Page):
         page.client_storage.set("color", 'Blue')
     if not page.client_storage.contains_key("web_provider"):
         page.client_storage.set("web_provider", "None")
+    if not page.client_storage.contains_key("song_quality"):
+        page.client_storage.set("song_quality", "Standard")
 
     color = page.client_storage.get('color')
     debug_mode = page.client_storage.get('debug')
@@ -70,6 +72,11 @@ def main(page: ft.Page):
     def web_provider_change(e):
         page.client_storage.set('web_provider', e.control.value)
         logger.info("Change web provider to %s" % e.control.value)
+        page.update()
+
+    def song_quality_change(e):
+        page.client_storage.set('song_quality', e.control.value)
+        logger.info("Change song quality to %s" % e.control.value)
         page.update()
 
     # 基本控件
@@ -318,6 +325,32 @@ def main(page: ft.Page):
                     ),
                 )
             )
+            song_quality = ft.Card(
+                content=ft.Container(
+                    padding=10,
+                    content=ft.Row(
+                        [
+                            ft.Icon(ft.icons.HIGH_QUALITY_ROUNDED),
+                            ft.Text("Preferred Download Quality", expand=True),
+                            ft.VerticalDivider(width=350),
+                            ft.Dropdown(
+                                dense=True,
+                                width=200,
+                                bgcolor=ft.colors.ON_INVERSE_SURFACE,
+                                value=page.client_storage.get('song_quality'),
+                                # filled = True,
+                                options=[
+                                    ft.dropdown.Option("Standard"),
+                                    ft.dropdown.Option("Higher"),
+                                    ft.dropdown.Option("Ex-High"),
+                                    ft.dropdown.Option("Lossless"),
+                                ],
+                                on_change=song_quality_change,
+                            ),
+                        ]
+                    ),
+                )
+            )
 
             settings = ft.Column(
                 width=1040,
@@ -328,6 +361,7 @@ def main(page: ft.Page):
                     theme_setting,
                     debug_setting,
                     web_provider,
+                    song_quality,
                 ]
             )
             logger.info("Build settings page")
@@ -393,7 +427,8 @@ def main(page: ft.Page):
             time.sleep(0.5)
             duration = music_player.duration
             if duration == None:
-                url = Web_provider.get_url(self.provider,self.id)
+                quality = page.client_storage.get('song_quality')
+                url = Web_provider.get_url(self.provider,self.id,quality)
                 # print(url)
                 logger.info("Provider Response: "+str(url))
 
@@ -404,12 +439,6 @@ def main(page: ft.Page):
                     page.update()
                     return
                 # if "image" in url:
-                #     # dialog = ft.AlertDialog(
-                #     #     title="QR Code",
-                #     #     open=True,
-                #     #     content=ft.Image(src_base64=url),
-                #     #     # actions=[ft.DialogAction(label="Close", on_click=lambda e: dialog.close())],
-                #     # )
                 #     app_page.search_page.controls[1].content = ft.Image(src_base64=url[22:])
                 #     app_page.search_page.controls[1].open = True
                 #     page.update()
@@ -422,7 +451,8 @@ def main(page: ft.Page):
             # print(response)
 
         def download(self,e):
-            url = Web_provider.get_url(self.provider,self.id)
+            quality = page.client_storage.get('song_quality')
+            url = Web_provider.get_url(self.provider,self.id,quality)
             # print(url)
             logger.info("Provider Response: "+str(url))
             if type(url) == dict:
@@ -436,7 +466,7 @@ def main(page: ft.Page):
             # 其实大多数时候，用yt_dlp下载会比拿到URL再get更快
             if self.provider == "YTMusic":
                 url = 'https://www.youtube.com/watch?v='+self.id
-
+            
             Web_provider.get_mp3(self.provider,url,self.singer+" - "+self.name)
             Web_provider.write_id3(self.provider,self.id,self.singer+" - "+self.name)
 

@@ -17,9 +17,9 @@ def search(provider, search_value):
     else:
         return []
     
-def get_url(provider, song_id):
+def get_url(provider, song_id,quality="higher"):
     if provider == "Netease":
-        return Netease.get_url(song_id)
+        return Netease.get_url(song_id,quality)
     elif provider == "KuGou":
         return KuGou.get_url(song_id)
     elif provider == "QQ":
@@ -73,7 +73,7 @@ def write_id3(provider, songid, filename):
             audiofile.tag.images.set(3, pic, "image/jpeg")
         if lyric != None:
             audiofile.tag.lyrics.set(lyric)
-            with open("./Music/"+filename+".lrc", "w") as file:
+            with open("./Music/"+filename+".lrc", "w",encoding='utf-8') as file:
                 file.write(lyric)
         audiofile.tag.save(version=(2, 3, 0))
 
