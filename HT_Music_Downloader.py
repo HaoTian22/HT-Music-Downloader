@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import flet as ft
 import logging
@@ -437,6 +438,7 @@ def main(page: ft.Page):
                 url = 'https://www.youtube.com/watch?v='+self.id
 
             Web_provider.get_mp3(self.provider,url,self.singer+" - "+self.name)
+            Web_provider.write_id3(self.provider,self.id,self.singer+" - "+self.name)
 
             logger.info("Downloaded: "+self.name)
 
