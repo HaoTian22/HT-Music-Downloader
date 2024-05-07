@@ -57,7 +57,7 @@ def write_id3(provider, songid, filename):
         pass
     elif provider == "YTMusic":
         info = ytmusic.get_info(songid)
-        lyric = ytmusic.get_lyric(songid)
+        lyric = None
     else:
         return
     if not os.path.exists("./Music"):
@@ -66,14 +66,17 @@ def write_id3(provider, songid, filename):
         audiofile = eyed3.load("./Music/"+filename+".mp3")
         audiofile.tag.title = info["song_name"]
         audiofile.tag.artist = info["song_singer"]
-        audiofile.tag.album = info["song_album"]
+        if "song_album" in info:
+            audiofile.tag.album = info["song_album"]
         # audiofile.tag.album_artist = info["song_singer"]
-        audiofile.tag.images.set(3, pic, "image/jpeg")
-        audiofile.tag.lyrics.set(lyric)
+        if "pic_url" in info:
+            audiofile.tag.images.set(3, pic, "image/jpeg")
+        if lyric != None:
+            audiofile.tag.lyrics.set(lyric)
+            with open("./Music/"+filename+".lrc", "w") as file:
+                file.write(lyric)
         audiofile.tag.save(version=(2, 3, 0))
 
-        with open("./Music/"+filename+".lrc", "w") as file:
-            file.write(lyric)
     return
 
 def get_info(provider, songid):
