@@ -22,7 +22,7 @@
 🕑Show lyrics during playback  
 ❌All functions for paid songs  
 
-*Limited access from KuGou, Netease is supported by [NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi), Youtube Music is supported by [yt-dlp](https://github.com/yt-dlp/yt-dlp)
+*Limited access from KuGou, Netease is supported by [NeteaseCloudMusicApi](https://binaryify.github.io/NeteaseCloudMusicApi), Youtube Music is supported by [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 
 ## How to use
 
