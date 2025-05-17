@@ -12,10 +12,10 @@
 ✅Search for music  
 🕑Embeded song info, lyrics and cover in the file  
 ☑️Win/Mac/Linux support(Only python/Not support build bin)  
-🕑.lrc lyric download
+🕑.lrc lyric download  
 ✅Customized themes  
 ☑️Get songs from Music Streaming platforms online(KuGou/Netease/Youtube Music)*  
-✅Play music
+✅Play music  
 🕑Playlist import  
 🕑Local music  
 🕑Multiple choice  
