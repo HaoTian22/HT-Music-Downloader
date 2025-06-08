@@ -86,22 +86,22 @@ def main(page: ft.Page):
         min_width=100,
         height=650,
         min_extended_width=400,
-        # leading=Icon(icons.QUEUE_MUSIC_ROUNDED),
+        # leading=Icon(Icons.QUEUE_MUSIC_ROUNDED),
         group_alignment=-1,
         destinations=[
             ft.NavigationRailDestination(
-                icon=ft.icons.HOME_OUTLINED,
-                selected_icon=ft.icons.HOME_ROUNDED,
+                icon=ft.Icons.HOME_OUTLINED,
+                selected_icon=ft.Icons.HOME_ROUNDED,
                 label="Home",
             ),
             ft.NavigationRailDestination(
-                icon_content=ft.Icon(ft.icons.LIBRARY_MUSIC_OUTLINED),
-                selected_icon_content=ft.Icon(ft.icons.LIBRARY_MUSIC_ROUNDED),
+                icon_content=ft.Icon(ft.Icons.LIBRARY_MUSIC_OUTLINED),
+                selected_icon_content=ft.Icon(ft.Icons.LIBRARY_MUSIC_ROUNDED),
                 label="Local",
             ),
             ft.NavigationRailDestination(
-                icon=ft.icons.SETTINGS_OUTLINED,
-                selected_icon_content=ft.Icon(ft.icons.SETTINGS_ROUNDED),
+                icon=ft.Icons.SETTINGS_OUTLINED,
+                selected_icon_content=ft.Icon(ft.Icons.SETTINGS_ROUNDED),
                 label_content=ft.Text("Settings"),
             ),
         ],on_change=change_page
@@ -163,12 +163,12 @@ def main(page: ft.Page):
                 self.player.content.controls[3].disabled = False
                 self.audio.play()
                 self.is_playing = True
-                # self.player.content.controls[1].icon = ft.icons.PAUSE_ROUNDED
+                # self.player.content.controls[1].icon = ft.Icons.PAUSE_ROUNDED
                 logger.info("Start playing")
                 page.update()
 
         def show_state(self,e):
-            self.player.content.controls[1].icon = ft.icons.PAUSE_ROUNDED if e.data == "playing" else ft.icons.PLAY_ARROW_ROUNDED
+            self.player.content.controls[1].icon = ft.Icons.PAUSE_ROUNDED if e.data == "playing" else ft.Icons.PLAY_ARROW_ROUNDED
             # print("State changed:", e.data)
             logger.info("State changed: "+e.data)
             page.update()
@@ -191,12 +191,12 @@ def main(page: ft.Page):
                     controls=[
                         ft.Text(self.name, width=200, no_wrap=True,text_align='right'),
                         ft.IconButton(
-                            ft.icons.PLAY_ARROW_ROUNDED,
+                            ft.Icons.PLAY_ARROW_ROUNDED,
                             on_click=lambda e: self.change_playing_status(),
                             disabled=True,
                         ),
                         ft.IconButton(
-                            ft.icons.RESTART_ALT_ROUNDED,
+                            ft.Icons.RESTART_ALT_ROUNDED,
                             on_click=lambda e: self.audio.seek(0),
                             disabled=True,
                         ),
@@ -236,7 +236,7 @@ def main(page: ft.Page):
                             controls=[
                                 self.search,
                                 ft.FloatingActionButton(
-                                    icon=ft.icons.SEARCH, on_click=self.search_song),
+                                    icon=ft.Icons.SEARCH, on_click=self.search_song),
                             ],
                         ),
                         # Container(self.songs,padding=padding.symmetric(horizontal=200)),
@@ -270,17 +270,17 @@ def main(page: ft.Page):
                 content=ft.Container(
                     padding=10,
                     content=ft.Row([
-                        ft.Icon(ft.icons.COLOR_LENS),
+                        ft.Icon(ft.Icons.COLOR_LENS),
                         ft.Text("Theme-Color", expand=True),
                         ft.VerticalDivider(width=420),
-                        ft.IconButton(icon=ft.icons.CIRCLE, icon_color='red', tooltip='red', on_click=lambda e:change_theme('red')),
-                        ft.IconButton(icon=ft.icons.CIRCLE, icon_color='pink', tooltip='pink', on_click=lambda e:change_theme('pink')),
-                        ft.IconButton(icon=ft.icons.CIRCLE, icon_color='orange', tooltip='orange', on_click=lambda e:change_theme('orange')),
-                        ft.IconButton(icon=ft.icons.CIRCLE, icon_color='yellow', tooltip='yellow', on_click=lambda e:change_theme('yellow')),
-                        ft.IconButton(icon=ft.icons.CIRCLE, icon_color='green', tooltip='green', on_click=lambda e:change_theme('green')),
-                        ft.IconButton(icon=ft.icons.CIRCLE, icon_color='blue', tooltip='blue', on_click=lambda e:change_theme('blue')),
-                        ft.IconButton(icon=ft.icons.CIRCLE, icon_color='purple', tooltip='purple', on_click=lambda e:change_theme('purple')),
-                        ft.IconButton(icon=ft.icons.CIRCLE, icon_color='brown', tooltip='brown', on_click=lambda e:change_theme('brown')),
+                        ft.IconButton(icon=ft.Icons.CIRCLE, icon_color='red', tooltip='red', on_click=lambda e:change_theme('red')),
+                        ft.IconButton(icon=ft.Icons.CIRCLE, icon_color='pink', tooltip='pink', on_click=lambda e:change_theme('pink')),
+                        ft.IconButton(icon=ft.Icons.CIRCLE, icon_color='orange', tooltip='orange', on_click=lambda e:change_theme('orange')),
+                        ft.IconButton(icon=ft.Icons.CIRCLE, icon_color='yellow', tooltip='yellow', on_click=lambda e:change_theme('yellow')),
+                        ft.IconButton(icon=ft.Icons.CIRCLE, icon_color='green', tooltip='green', on_click=lambda e:change_theme('green')),
+                        ft.IconButton(icon=ft.Icons.CIRCLE, icon_color='blue', tooltip='blue', on_click=lambda e:change_theme('blue')),
+                        ft.IconButton(icon=ft.Icons.CIRCLE, icon_color='purple', tooltip='purple', on_click=lambda e:change_theme('purple')),
+                        ft.IconButton(icon=ft.Icons.CIRCLE, icon_color='brown', tooltip='brown', on_click=lambda e:change_theme('brown')),
                     ])
 
                 ),
@@ -290,7 +290,7 @@ def main(page: ft.Page):
                     padding=10, 
                     # height=200,
                     content=ft.Row([
-                        ft.Icon(ft.icons.BUG_REPORT_ROUNDED),
+                        ft.Icon(ft.Icons.BUG_REPORT_ROUNDED),
                         ft.Text("Debug-Mode (Need restart)", expand=True),
                         ft.VerticalDivider(width=650),
                         ft.Switch(on_change=change_debug_mode, value=page.client_storage.get("debug"))
@@ -303,7 +303,7 @@ def main(page: ft.Page):
                     padding=10,
                     content=ft.Row(
                         [
-                            ft.Icon(ft.icons.WEB),
+                            ft.Icon(ft.Icons.WEB),
                             ft.Text("Web Provider", expand=True),
                             ft.VerticalDivider(width=350),
                             ft.Dropdown(
@@ -330,7 +330,7 @@ def main(page: ft.Page):
                     padding=10,
                     content=ft.Row(
                         [
-                            ft.Icon(ft.icons.HIGH_QUALITY_ROUNDED),
+                            ft.Icon(ft.Icons.HIGH_QUALITY_ROUNDED),
                             ft.Text("Preferred Download Quality", expand=True),
                             ft.VerticalDivider(width=350),
                             ft.Dropdown(
@@ -472,7 +472,7 @@ def main(page: ft.Page):
 
             logger.info("Downloaded: "+self.name)
 
-            self.download_state.icon = ft.icons.DOWNLOAD_DONE_ROUNDED
+            self.download_state.icon = ft.Icons.DOWNLOAD_DONE_ROUNDED
             page.update()
 
         # 渲染控件
@@ -481,13 +481,13 @@ def main(page: ft.Page):
             # print("Building song: "+self.name)
             logger.info("Building song: "+self.name)
             self.download_state = ft.IconButton(
-                icon=ft.icons.DOWNLOAD_ROUNDED,
+                icon=ft.Icons.DOWNLOAD_ROUNDED,
                 tooltip="Download this song",
                 on_click=self.download
             )
             # Auxiliary = '\nNote: '+self.Auxiliary if self.Auxiliary != '' else ''
             # 非常抽象的UI
-            Auxiliary = ft.Row([ft.Container(content=ft.Row([ft.Icon(ft.icons.MORE_ROUNDED,size=18),ft.Text(self.Auxiliary),]),bgcolor=ft.colors.PRIMARY_CONTAINER,padding=ft.padding.only(left=5, top=5, right=10, bottom=5),border_radius=30,),]) if self.Auxiliary != '' else None
+            Auxiliary = ft.Row([ft.Container(content=ft.Row([ft.Icon(ft.Icons.MORE_ROUNDED,size=18),ft.Text(self.Auxiliary),]),bgcolor=ft.colors.PRIMARY_CONTAINER,padding=ft.padding.only(left=5, top=5, right=10, bottom=5),border_radius=30,),]) if self.Auxiliary != '' else None
 
             singer = 'Singer: '+self.singer+'    ' if len(self.singer)<=12 and len(self.album) <= 12 else 'Singer: '+self.singer+'\n'
             album = 'Album: '+self.album if self.album != '' else ''
@@ -500,7 +500,7 @@ def main(page: ft.Page):
                     content=ft.Row(
                         [
                             ft.ListTile(
-                                leading=ft.Icon(ft.icons.MUSIC_NOTE_ROUNDED),
+                                leading=ft.Icon(ft.Icons.MUSIC_NOTE_ROUNDED),
                                 title=ft.Text(self.name, selectable=True),
                                 subtitle=ft.Column(
                                     [
@@ -510,7 +510,7 @@ def main(page: ft.Page):
                                                     content=ft.Row(
                                                         [
                                                             ft.Icon(
-                                                                ft.icons.ACCOUNT_CIRCLE_ROUNDED,
+                                                                ft.Icons.ACCOUNT_CIRCLE_ROUNDED,
                                                                 size=18,
                                                             ),
                                                             ft.Text(self.singer),
@@ -530,7 +530,7 @@ def main(page: ft.Page):
                                                     content=ft.Row(
                                                         [
                                                             ft.Icon(
-                                                                ft.icons.ALBUM_ROUNDED,
+                                                                ft.Icons.ALBUM_ROUNDED,
                                                                 size=18,
                                                             ),
                                                             ft.Text(self.album),
@@ -556,7 +556,7 @@ def main(page: ft.Page):
                             ft.Row(
                                 [
                                     ft.IconButton(
-                                        icon=ft.icons.PLAY_ARROW_ROUNDED,
+                                        icon=ft.Icons.PLAY_ARROW_ROUNDED,
                                         tooltip="Play",
                                         on_click=lambda e: self.play(),
                                     ),
