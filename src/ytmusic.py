@@ -28,7 +28,7 @@ def search(keyword):
             "song_name": song["title"],
             "song_id": song["videoId"],
             "song_album": '',
-            "song_singer": song["artists"][1]["name"],
+            "song_singer": song["artists"][0]["name"],
             "song_album_id":0,
             "song_auxiliary":'Video/MV'
             })

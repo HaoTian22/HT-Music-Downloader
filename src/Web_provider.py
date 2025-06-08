@@ -83,7 +83,7 @@ def get_info(provider, songid):
     if provider == "Netease":
         return Netease.get_info(songid)
     elif provider == "KuGou":
-        return KuGou.get_info(songid)
+        return KuGou.get_music_info(songid)
     elif provider == "QQ":
         pass
     elif provider == "YTMusic":

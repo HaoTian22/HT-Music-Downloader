@@ -156,7 +156,7 @@ def main(page: ft.Page):
             logger.info("Duration: "+str(self.duration))
             if self.duration != None:
                 self.player.content.controls[0].value = self.name
-                print(self.name)
+                # print(self.name)
                 self.player.content.controls[1].disabled = False
                 self.player.content.controls[2].disabled = False
                 self.player.content.controls[3].disabled = False
