@@ -62,9 +62,9 @@ jobs:
           # Artifact name
           name: HT-Music-Downloader-Windows
           # A file, directory or wildcard pattern that describes what to upload
-          path: build
-          
-          
+          path: build/windows
+
+
   build-MacOS:
     # The type of runner that the job will run on
     runs-on: macos-latest
@@ -97,7 +97,7 @@ jobs:
           # Artifact name
           name: HT-Music-Downloader-MacOS
           # A file, directory or wildcard pattern that describes what to upload
-          path: build
+          path: build/macos
 
           
   build-Linux:
@@ -120,7 +120,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libglib2.0-dev libcairo2-dev libpango1.0-dev libgdk-pixbuf2.0-dev libatk1.0-dev
-
+          sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 
       # Runs a single command using the runners shell
       - name: Install pip
@@ -139,7 +139,7 @@ jobs:
           # Artifact name
           name: HT-Music-Downloader-Linux
           # A file, directory or wildcard pattern that describes what to upload
-          path: build
+          path: build/linux
 
   # build-Android:
   #   # The type of runner that the job will run on
@@ -192,17 +192,17 @@ jobs:
     #     files: zip/Linux
     #     dest: HT-Music-Downloader-Linux.zip
 
-     - uses: actions/download-artifact@v2
+     - uses: actions/download-artifact@v4
        with:
         name: HT-Music-Downloader-MacOS
         path: ./
 
-     - uses: actions/download-artifact@v2
+     - uses: actions/download-artifact@v4
        with:
         name: HT-Music-Downloader-Windows
         path: ./
 
-    #  - uses: actions/download-artifact@v2
+    #  - uses: actions/download-artifact@v4
     #    with:
     #     name: HT-Music-Downloader-Android
     #     path: ./

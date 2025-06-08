@@ -7,12 +7,11 @@ import time
 import Web_provider
 # import signal
 # import threading
+import requests
+from pyncm import apis
+from ytmusicapi import YTMusic
+import yt_dlp
 
-# def handle_signal(signum, frame):
-#     print("Received signal:", signum)
-
-# # Set up signal handling in main thread
-# signal.signal(signal.SIGINT, handle_signal)
 
 def format_time(milliseconds):
     seconds, milliseconds = divmod(milliseconds, 1000)
