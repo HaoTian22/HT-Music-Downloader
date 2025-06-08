@@ -55,7 +55,7 @@ jobs:
           # Artifact name
           name: HT-Music-Downloader-Windows
           # A file, directory or wildcard pattern that describes what to upload
-          path: HT-Music-Downloader-Windows.zip
+          path: build
           
           
   build-MacOS:
@@ -90,7 +90,7 @@ jobs:
           # Artifact name
           name: HT-Music-Downloader-MacOS
           # A file, directory or wildcard pattern that describes what to upload
-          path: HT-Music-Downloader-MacOS.zip
+          path: build
 
           
   build-Linux:
@@ -125,7 +125,7 @@ jobs:
           # Artifact name
           name: HT-Music-Downloader-Linux
           # A file, directory or wildcard pattern that describes what to upload
-          path: HT-Music-Downloader-Linux.zip
+          path: build
 
   # build-Android:
   #   # The type of runner that the job will run on
