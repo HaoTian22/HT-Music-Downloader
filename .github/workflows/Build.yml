@@ -50,7 +50,7 @@ jobs:
         run: flet build windows -v
       # ren ./build/HT_Music_Downloader.exe "HT-Music-Downloader-Windows.exe"
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v4
         with:
           # Artifact name
           name: HT-Music-Downloader-Windows
@@ -85,7 +85,7 @@ jobs:
       - name: flet
         run: flet build macos -v
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v4
         with:
           # Artifact name
           name: HT-Music-Downloader-MacOS
@@ -120,7 +120,7 @@ jobs:
       - name: flet
         run: flet build linux -v
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v4
         with:
           # Artifact name
           name: HT-Music-Downloader-Linux
@@ -156,7 +156,7 @@ jobs:
   #         flet build apk --module-name HT_Music_Downloader.py --include-packages flet_audio
   #         zip -r HT-Music-Downloader-Android.zip build/apk/
   #     - name: Upload a Build Artifact
-  #       uses: actions/upload-artifact@v3.1.0
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         # Artifact name
   #         name: HT-Music-Downloader-Android
