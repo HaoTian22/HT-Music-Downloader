@@ -1,4 +1,4 @@
-flet==0.22.0
+flet==0.28.3
 Requests==2.32.2
 yt_dlp==2025.5.22
 ytmusicapi==1.10.3
