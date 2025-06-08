@@ -11,6 +11,7 @@ import requests
 from pyncm import apis
 from ytmusicapi import YTMusic
 import yt_dlp
+from pathlib import Path
 
 
 def format_time(milliseconds):
@@ -354,6 +355,26 @@ def main(page: ft.Page):
                 )
             )
 
+            folder_picker = ft.FilePicker(on_result=lambda e: self.handle_folder_selection(e))
+            page.overlay.append(folder_picker)
+
+            music_folder_setting = ft.Card(
+                content=ft.Container(
+                    padding=10,
+                    content=ft.Row([
+                        ft.Icon(ft.Icons.FOLDER),
+                        ft.Text("Music Folder", expand=True),
+                        ft.Text(page.client_storage.get("music_folder"), text_align='right'),
+                        ft.FilledButton(
+                            "Change",
+                            on_click=lambda e: folder_picker.get_directory_path(
+                                dialog_title="Select Music Folder",
+                            )
+                        ),
+                    ])
+                )
+            )
+
             settings = ft.Column(
                 width=1040,
                 height=600,
@@ -364,10 +385,16 @@ def main(page: ft.Page):
                     debug_setting,
                     web_provider,
                     song_quality,
+                    music_folder_setting,
                 ]
             )
             logger.info("Build settings page")
             return settings
+
+        def handle_folder_selection(self, e: ft.FilePickerResultEvent):
+            if e.path:
+                page.client_storage.set("music_folder", e.path)
+                logger.info(f"Music folder set to: {e.path}")
 
         def search_song(self,e):
             # music_player.load_audio("https://github.com/mdn/webaudio-examples/blob/main/audio-analyser/viper.mp3?raw=true")
@@ -421,13 +448,28 @@ def main(page: ft.Page):
             self.ui = self.build()
             self.provider = provider
 
+        def get_music_dir(self):
+            """获取音乐目录"""
+            # 首先检查用户是否设置了自定义路径
+            custom_path = page.client_storage.get("music_folder")
+            if custom_path and Path(custom_path).exists():
+                return Path(custom_path)
+            else:
+                return Path("./Music")
+
         def play(self):
             global music_player
             # response = netease_cloud_music_api.request("/song/url/v1",{"id":self.id,"level":"higher"})
             # 本地优先
-            music_player.load_audio("./Music/"+self.singer+" - "+self.name+".mp3")
-            time.sleep(0.5)
-            duration = music_player.duration
+            music_dir = self.get_music_dir()
+            local_file = music_dir / f"{self.singer} - {self.name}.mp3"
+            
+            # 尝试播放本地文件
+            if local_file.exists():
+                music_player.load_audio(str(local_file))
+                time.sleep(0.5)
+                duration = music_player.duration
+                
             if duration == None:
                 quality = page.client_storage.get('song_quality')
                 url = Web_provider.get_url(self.provider,self.id,quality)
@@ -469,10 +511,15 @@ def main(page: ft.Page):
             if self.provider == "YTMusic":
                 url = 'https://www.youtube.com/watch?v='+self.id
             
-            Web_provider.get_mp3(self.provider,url,self.singer+" - "+self.name)
-            Web_provider.write_id3(self.provider,self.id,self.singer+" - "+self.name)
+            # 确保下载到正确的目录
+            music_dir = self.get_music_dir()
+            filename = f"{self.singer} - {self.name}"
+            
+            # 修改 Web_provider 以接受自定义路径
+            Web_provider.get_mp3(self.provider, url, filename, str(music_dir))
+            Web_provider.write_id3(self.provider, self.id, filename, str(music_dir))
 
-            logger.info("Downloaded: "+self.name)
+            logger.info("Downloaded: " + self.name)
 
             self.download_state.icon = ft.Icons.DOWNLOAD_DONE_ROUNDED
             page.update()

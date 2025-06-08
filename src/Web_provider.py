@@ -30,22 +30,22 @@ def get_url(provider, song_id,quality="higher"):
     else:
         return None
     
-def get_mp3(provider,url,filename):
-    if not os.path.exists("./Music"):
-        os.makedirs("Music")
+def get_mp3(provider,url,filename, music_dir):
+    if not os.path.exists(music_dir):
+        os.makedirs(music_dir)
 
     if provider != "YTMusic":
         mp3_content = requests.get(url).content
-        if os.path.exists("./Music/"+filename+".mp3"):
+        if os.path.exists(music_dir / f"{filename}.mp3"):
             print("File already exists")
             return
-        with open("./Music/"+filename+".mp3", "wb") as file:
+        with open(music_dir / f"{filename}.mp3", "wb") as file:
             file.write(mp3_content)
     else:
         ytmusic.download(url, filename)
     return
 
-def write_id3(provider, songid, filename):
+def write_id3(provider, songid, filename, music_dir):
     if provider == "Netease":
         info = Netease.get_info(songid)
         lyric = Netease.get_lyric(songid)
@@ -60,10 +60,10 @@ def write_id3(provider, songid, filename):
         lyric = None
     else:
         return
-    if not os.path.exists("./Music"):
-        os.makedirs("Music")
-    if os.path.exists("./Music/"+filename+".mp3"):
-        audiofile = eyed3.load("./Music/"+filename+".mp3")
+    if not os.path.exists(music_dir):
+        os.makedirs(music_dir)
+    if os.path.exists(music_dir / f"{filename}.mp3"):
+        audiofile = eyed3.load(music_dir / f"{filename}.mp3")
         audiofile.tag.title = info["song_name"]
         audiofile.tag.artist = info["song_singer"]
         if "song_album" in info:
@@ -73,7 +73,7 @@ def write_id3(provider, songid, filename):
             audiofile.tag.images.set(3, pic, "image/jpeg")
         if lyric != None:
             audiofile.tag.lyrics.set(lyric)
-            with open("./Music/"+filename+".lrc", "w",encoding='utf-8') as file:
+            with open(music_dir / f"{filename}.lrc", "w", encoding='utf-8') as file:
                 file.write(lyric)
         audiofile.tag.save(version=(2, 3, 0))
 
