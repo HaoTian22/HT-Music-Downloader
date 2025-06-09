@@ -57,8 +57,8 @@ def get_url(song_id):
     # url = youtube_dl.geturl('https://www.youtube.com/watch?v='+song_id)
     return url
 
-def download(url, filename):
-    ydl_opts["outtmpl"] = "music/"+filename
+def download(url, filename, music_dir):
+    ydl_opts["outtmpl"] = f"{music_dir}/{filename}.mp3"
     ydl = yt_dlp.YoutubeDL(ydl_opts)
     ydl.download([url])
 

@@ -90,19 +90,33 @@ jobs:
       - name: Install pip
         run: |
           export PYTHONIOENCODING=utf-8
+          export LC_ALL=en_US.UTF-8
+          export LANG=en_US.UTF-8
           pip install -r requirements.txt
+          
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           flutter-version: 3.19.6
+          
+      # Add Flutter clean step before build
+      - name: Clean Flutter
+        run: |
+          export LC_ALL=en_US.UTF-8
+          export LANG=en_US.UTF-8
+          flutter clean
+          flutter pub get
+          
       # Runs a set of commands using the runners shell
       - name: flet
         run: |
           export PYTHONIOENCODING=utf-8
           export LC_ALL=en_US.UTF-8
           export LANG=en_US.UTF-8
-          flet build macos -v
+          # Force UTF-8 encoding for all output
+          python -c "import sys; print(sys.stdout.encoding)"
+          flet build macos -v --no-rich-output
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:

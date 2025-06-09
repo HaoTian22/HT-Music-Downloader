@@ -36,13 +36,13 @@ def get_mp3(provider,url,filename, music_dir):
 
     if provider != "YTMusic":
         mp3_content = requests.get(url).content
-        if os.path.exists(music_dir / f"{filename}.mp3"):
+        if os.path.exists(f"{music_dir}/{filename}.mp3"):
             print("File already exists")
             return
-        with open(music_dir / f"{filename}.mp3", "wb") as file:
+        with open(f"{music_dir}/{filename}.mp3", "wb") as file:
             file.write(mp3_content)
     else:
-        ytmusic.download(url, filename)
+        ytmusic.download(url, filename, music_dir)
     return
 
 def write_id3(provider, songid, filename, music_dir):
@@ -62,8 +62,8 @@ def write_id3(provider, songid, filename, music_dir):
         return
     if not os.path.exists(music_dir):
         os.makedirs(music_dir)
-    if os.path.exists(music_dir / f"{filename}.mp3"):
-        audiofile = eyed3.load(music_dir / f"{filename}.mp3")
+    if os.path.exists(f"{music_dir}/{filename}.mp3"):
+        audiofile = eyed3.load(f"{music_dir}/{filename}.mp3")
         audiofile.tag.title = info["song_name"]
         audiofile.tag.artist = info["song_singer"]
         if "song_album" in info:
@@ -73,7 +73,7 @@ def write_id3(provider, songid, filename, music_dir):
             audiofile.tag.images.set(3, pic, "image/jpeg")
         if lyric != None:
             audiofile.tag.lyrics.set(lyric)
-            with open(music_dir / f"{filename}.lrc", "w", encoding='utf-8') as file:
+            with open(f"{music_dir}/{filename}.lrc", "w", encoding='utf-8') as file:
                 file.write(lyric)
         audiofile.tag.save(version=(2, 3, 0))
 

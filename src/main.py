@@ -395,6 +395,9 @@ def main(page: ft.Page):
             if e.path:
                 page.client_storage.set("music_folder", e.path)
                 logger.info(f"Music folder set to: {e.path}")
+                # 更新设置页面上的路径显示
+                self.settings_page.controls[5].content.content.controls[2].value = e.path
+                page.update()
 
         def search_song(self,e):
             # music_player.load_audio("https://github.com/mdn/webaudio-examples/blob/main/audio-analyser/viper.mp3?raw=true")
@@ -469,8 +472,8 @@ def main(page: ft.Page):
                 music_player.load_audio(str(local_file))
                 time.sleep(0.5)
                 duration = music_player.duration
-                
-            if duration == None:
+
+            if not(local_file.exists()) or duration == None:
                 quality = page.client_storage.get('song_quality')
                 url = Web_provider.get_url(self.provider,self.id,quality)
                 # print(url)

@@ -58,8 +58,8 @@ def get_info(songid):
     # response = requests.get("https://neteasecloudmusicapi.vercel.app/song/detail?ids="+songid).json()
     # pic_url = response["data"]["songs"][0]["al"]["picUrl"]
     # pic = requests.get(pic_url).content
-    response_data = response["data"]["songs"][0]
-    print(response_data)
+    print(response)
+    response_data = response["songs"][0]
     info = {"song_name":response_data["name"],"song_id":songid,"song_album":response_data["al"]["name"],"song_singer":response_data["ar"][0]["name"],"song_album_id":response_data["al"]["id"],"pic_url":response_data["al"]["picUrl"]}
     return info
 
