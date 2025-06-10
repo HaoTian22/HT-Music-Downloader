@@ -1,5 +1,5 @@
 flet==0.28.3
-Requests==2.32.2
+Requests==2.32.4
 yt_dlp==2025.5.22
 ytmusicapi==1.10.3
 eyed3==0.9.8
