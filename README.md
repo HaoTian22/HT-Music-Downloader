@@ -29,8 +29,7 @@
 ### Method A (Recommended)
 
 1. Clone the repository by running `git clone https://github.com/HaoTian22/HT-Music-Downloader.git`
-2. Install the required packages by running `pip install -r requirements.txt`
-3. Run the program by running `python HT_Music_Downloader.py`
+2. Run the program by running `uv run flet run`
 
 ### Method B
 

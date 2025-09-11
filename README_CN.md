@@ -29,8 +29,7 @@
 ### 方法A（推荐）
 
 1. 克隆仓库：`git clone https://github.com/HaoTian22/HT-Music-Downloader.git`
-2. 安装所需包：`pip install -r requirements.txt`
-3. 运行程序：`python HT_Music_Downloader.py`
+2. 运行程序：`uv run flet run`
 
 ### 方法B
 
