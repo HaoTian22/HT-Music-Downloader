@@ -11,7 +11,7 @@ dependencies = [
   "flet==0.28.3",
   "flet-audio",
   "Requests==2.32.2",
-  "yt_dlp==2025.5.22",
+  "yt_dlp==2026.7.4",
   "ytmusicapi==1.10.3",
   "eyed3==0.9.8",
   "pyncm==1.7.1"
